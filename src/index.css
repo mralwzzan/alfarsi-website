@@ -60,12 +60,12 @@ body {
 .bokeh {
   position: absolute;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(224, 188, 110, 0.9), rgba(208, 166, 78, 0.35) 55%, transparent 72%);
-  filter: blur(2px);
+  background: radial-gradient(circle, rgba(232, 160, 172, 0.55), rgba(170, 60, 78, 0.28) 55%, transparent 72%);
+  filter: blur(3px);
   animation: bokehDrift var(--bd, 14s) ease-in-out infinite;
   pointer-events: none;
 }
-.bokeh.soft { filter: blur(10px); }
+.bokeh.soft { filter: blur(12px); }
 
 .hero-blob {
   position: absolute;
@@ -103,9 +103,8 @@ body {
 .services-3d {
   position: relative;
   background:
-    radial-gradient(circle at 20% 15%, rgba(180, 50, 66, 0.5), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(110, 22, 36, 0.55), transparent 50%),
-    linear-gradient(160deg, #3a0c14 0%, #5a131f 45%, #7d1f2e 100%);
+    radial-gradient(ellipse 90% 70% at 38% 25%, rgba(125, 31, 46, 0.55), transparent 70%),
+    linear-gradient(160deg, #220812 0%, #45101b 50%, #5a131f 100%);
   overflow: hidden;
 }
 
@@ -118,8 +117,8 @@ body {
   bottom: -10%;
   height: 70%;
   background-image:
-    linear-gradient(rgba(208, 166, 78, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(208, 166, 78, 0.18) 1px, transparent 1px);
+    linear-gradient(rgba(225, 150, 162, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(225, 150, 162, 0.16) 1px, transparent 1px);
   background-size: 50px 50px;
   transform: perspective(550px) rotateX(62deg);
   transform-origin: bottom center;

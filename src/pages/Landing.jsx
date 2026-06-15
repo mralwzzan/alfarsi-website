@@ -89,10 +89,20 @@ export default function AlFarsiLawOffice() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-20 px-4 hero-animated">
-        {/* خلفية برغندي أحمر غامق هادئ + تعتيم حواف (بدون توهّجات ذهبية) */}
+        {/* خلفية برغندي أحمر غامق متحركة: توهّجات + نقاط ضوئية حمراء ناعمة (بدون ذهبي) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="hero-blob" style={{ width: '460px', height: '460px', top: '-100px', right: '-80px', background: 'radial-gradient(circle, rgba(125,31,46,0.5), transparent 70%)' }}></div>
+          <div className="hero-blob" style={{ width: '460px', height: '460px', top: '-100px', right: '-80px', background: 'radial-gradient(circle, rgba(160,45,62,0.5), transparent 70%)' }}></div>
           <div className="hero-blob" style={{ width: '380px', height: '380px', bottom: '-120px', left: '-60px', background: 'radial-gradient(circle, rgba(90,19,31,0.6), transparent 70%)', animationDelay: '5s' }}></div>
+          <div className="hero-blob" style={{ width: '320px', height: '320px', top: '36%', left: '40%', background: 'radial-gradient(circle, rgba(200,90,105,0.28), transparent 70%)', animationDelay: '9s' }}></div>
+
+          {/* نقاط ضوئية حمراء/وردية ناعمة تطفو */}
+          <span className="bokeh soft" style={{ width: '130px', height: '130px', top: '12%', left: '10%', '--bd': '14s', '--bx': '26px', '--by': '-40px' }}></span>
+          <span className="bokeh" style={{ width: '46px', height: '46px', top: '22%', left: '78%', '--bd': '12s', '--bx': '-22px', '--by': '30px', animationDelay: '1.5s' }}></span>
+          <span className="bokeh soft" style={{ width: '95px', height: '95px', top: '60%', left: '20%', '--bd': '17s', '--bx': '18px', '--by': '-28px', animationDelay: '3s' }}></span>
+          <span className="bokeh" style={{ width: '32px', height: '32px', top: '70%', left: '62%', '--bd': '10s', '--bx': '-16px', '--by': '-24px', animationDelay: '0.8s' }}></span>
+          <span className="bokeh" style={{ width: '60px', height: '60px', top: '15%', left: '52%', '--bd': '13s', '--bx': '20px', '--by': '34px', animationDelay: '2.2s' }}></span>
+          <span className="bokeh soft" style={{ width: '150px', height: '150px', bottom: '8%', right: '12%', '--bd': '19s', '--bx': '-30px', '--by': '-26px', animationDelay: '4s' }}></span>
+
           <div className="hero-vignette"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -185,8 +195,8 @@ export default function AlFarsiLawOffice() {
 
       {/* Services Section */}
       <section id="services" className="services-3d py-24 px-4">
-        <span className="glow-orb" style={{ width: '320px', height: '320px', background: '#d0a64e', top: '8%', right: '6%' }}></span>
-        <span className="glow-orb" style={{ width: '280px', height: '280px', background: '#a23c43', bottom: '10%', left: '4%', animationDelay: '6s' }}></span>
+        <span className="glow-orb" style={{ width: '320px', height: '320px', background: '#b03a4c', top: '8%', right: '6%' }}></span>
+        <span className="glow-orb" style={{ width: '280px', height: '280px', background: '#7d1f2e', bottom: '10%', left: '4%', animationDelay: '6s' }}></span>
         <div className="relative z-10 max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-block mb-4 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
