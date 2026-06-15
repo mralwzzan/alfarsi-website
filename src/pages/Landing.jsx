@@ -351,6 +351,16 @@ export default function AlFarsiLawOffice() {
                 </div>
 
                 <div className="flex items-start gap-4">
+                  <Mail className="text-blue-600 mt-1" size={28} />
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-800">البريد الإلكتروني</h4>
+                    <a href="mailto:mr.alwzzan@gmail.com" className="text-blue-600 hover:underline text-lg">
+                      mr.alwzzan@gmail.com
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
                   <MapPin className="text-blue-600 mt-1" size={28} />
                   <div>
                     <h4 className="text-lg font-bold text-slate-800">العنوان</h4>
