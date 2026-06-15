@@ -139,8 +139,46 @@ export default function AlFarsiLawOffice() {
         </div>
       </section>
 
+      {/* Mission / Goal Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-block mb-4 px-4 py-2 bg-gold-100 rounded-full">
+            <p className="text-brand-700 font-semibold text-sm">هدف المكتب</p>
+          </div>
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-6 leading-relaxed">
+            نحو عدالةٍ يطمئنّ إليها الجميع
+          </h2>
+          <p className="text-xl text-slate-600 leading-loose mb-4">
+            نؤمن في مكتب ساير بن فارس المطيري بأنّ العدالة حقٌّ أصيلٌ لكل فرد، ورسالتنا أن نقف إلى جانبك
+            بخبرةٍ واحترافيةٍ عالية لنحمي حقوقك ونرسم لك أوضح الطرق القانونية وأكثرها أماناً.
+          </p>
+          <p className="text-lg text-slate-500 leading-loose mb-12">
+            نلتزم بالشفافية التامّة والسرّية المطلقة في كل قضية، ونتعامل مع كل عميل باهتمامٍ شخصيّ
+            وكأنّ قضيته قضيتنا — لأنّ ثقتك أمانة، وحقّك غايتنا.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-6 text-right">
+            <div className="bg-gradient-to-br from-brand-50 to-white rounded-2xl p-6 border border-brand-100 shadow-sm">
+              <div className="text-4xl mb-3">🛡️</div>
+              <h3 className="text-xl font-bold text-brand-800 mb-2">الثقة والسرّية</h3>
+              <p className="text-slate-600 leading-relaxed">نحافظ على خصوصيتك التامّة في كل تفاصيل قضيتك دون استثناء.</p>
+            </div>
+            <div className="bg-gradient-to-br from-gold-50 to-white rounded-2xl p-6 border border-gold-200 shadow-sm">
+              <div className="text-4xl mb-3">⚖️</div>
+              <h3 className="text-xl font-bold text-brand-800 mb-2">الاحترافية</h3>
+              <p className="text-slate-600 leading-relaxed">فريقٌ متخصّص يجمع بين العلم الشرعي والنظامي بخبرةٍ راسخة.</p>
+            </div>
+            <div className="bg-gradient-to-br from-brand-50 to-white rounded-2xl p-6 border border-brand-100 shadow-sm">
+              <div className="text-4xl mb-3">🤝</div>
+              <h3 className="text-xl font-bold text-brand-800 mb-2">الالتزام</h3>
+              <p className="text-slate-600 leading-relaxed">نرافقك خطوةً بخطوة حتى تنال حقّك كاملاً وأنت مطمئن.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Services Section */}
-      <section id="services" className="py-20 px-4 bg-white">
+      <section id="services" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-4">خدماتنا</h2>
