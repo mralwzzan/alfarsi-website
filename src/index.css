@@ -28,11 +28,10 @@ body {
 
 .hero-animated {
   background:
-    radial-gradient(ellipse 85% 65% at 30% 30%, rgba(180, 50, 66, 0.5), transparent 60%),
-    radial-gradient(ellipse 70% 70% at 82% 78%, rgba(110, 22, 36, 0.62), transparent 65%),
-    linear-gradient(-45deg, #260910, #5a131f, #7d1f2e, #4a0f1a, #2a0a10);
-  background-size: 100% 100%, 100% 100%, 400% 400%;
-  animation: gradientShift 20s ease infinite;
+    radial-gradient(ellipse 90% 70% at 38% 30%, rgba(125, 31, 46, 0.55), transparent 70%),
+    linear-gradient(-45deg, #220812, #45101b, #5a131f, #3a0c15, #220812);
+  background-size: 100% 100%, 360% 360%;
+  animation: gradientShift 24s ease infinite;
 }
 
 /* دخول ناعم بانزلاق أفقي (يحاكي حركة الموقع المرجعي) */

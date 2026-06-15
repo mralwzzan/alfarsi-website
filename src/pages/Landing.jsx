@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard, Scale, User } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -89,25 +89,10 @@ export default function AlFarsiLawOffice() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-20 px-4 hero-animated">
-        {/* خلفية فوتوغرافية دافئة: توهّجات + نقاط ضوئية ذهبية (bokeh) + رمز ميزان + تعتيم حواف */}
+        {/* خلفية برغندي أحمر غامق هادئ + تعتيم حواف (بدون توهّجات ذهبية) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="hero-blob" style={{ width: '460px', height: '460px', top: '-100px', right: '-80px', background: 'radial-gradient(circle, rgba(208,166,78,0.4), transparent 70%)' }}></div>
-          <div className="hero-blob" style={{ width: '380px', height: '380px', bottom: '-120px', left: '-60px', background: 'radial-gradient(circle, rgba(162,60,67,0.55), transparent 70%)', animationDelay: '5s' }}></div>
-          <div className="hero-blob" style={{ width: '300px', height: '300px', top: '38%', left: '42%', background: 'radial-gradient(circle, rgba(194,161,96,0.28), transparent 70%)', animationDelay: '9s' }}></div>
-
-          {/* نقاط ضوئية ذهبية تطفو وتتلألأ */}
-          <span className="bokeh soft" style={{ width: '120px', height: '120px', top: '12%', left: '10%', '--bd': '13s', '--bx': '26px', '--by': '-40px' }}></span>
-          <span className="bokeh" style={{ width: '46px', height: '46px', top: '22%', left: '78%', '--bd': '11s', '--bx': '-22px', '--by': '30px', animationDelay: '1.5s' }}></span>
-          <span className="bokeh soft" style={{ width: '90px', height: '90px', top: '60%', left: '20%', '--bd': '16s', '--bx': '18px', '--by': '-28px', animationDelay: '3s' }}></span>
-          <span className="bokeh" style={{ width: '30px', height: '30px', top: '70%', left: '62%', '--bd': '9s', '--bx': '-16px', '--by': '-24px', animationDelay: '0.8s' }}></span>
-          <span className="bokeh" style={{ width: '60px', height: '60px', top: '15%', left: '52%', '--bd': '12s', '--bx': '20px', '--by': '34px', animationDelay: '2.2s' }}></span>
-          <span className="bokeh soft" style={{ width: '150px', height: '150px', bottom: '8%', right: '12%', '--bd': '18s', '--bx': '-30px', '--by': '-26px', animationDelay: '4s' }}></span>
-          <span className="bokeh" style={{ width: '24px', height: '24px', top: '40%', left: '88%', '--bd': '10s', '--bx': '-14px', '--by': '20px', animationDelay: '1s' }}></span>
-          <span className="bokeh" style={{ width: '38px', height: '38px', bottom: '20%', left: '40%', '--bd': '14s', '--bx': '22px', '--by': '-30px', animationDelay: '2.8s' }}></span>
-
-          <Scale className="hero-motif text-gold-400" style={{ width: '420px', height: '420px', top: '6%', left: '-30px' }} />
-          <Scale className="hero-motif text-gold-300" style={{ width: '300px', height: '300px', bottom: '0%', right: '8%', animationDelay: '7s' }} />
-          <div className="hero-shine"></div>
+          <div className="hero-blob" style={{ width: '460px', height: '460px', top: '-100px', right: '-80px', background: 'radial-gradient(circle, rgba(125,31,46,0.5), transparent 70%)' }}></div>
+          <div className="hero-blob" style={{ width: '380px', height: '380px', bottom: '-120px', left: '-60px', background: 'radial-gradient(circle, rgba(90,19,31,0.6), transparent 70%)', animationDelay: '5s' }}></div>
           <div className="hero-vignette"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
