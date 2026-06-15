@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone, CreditCard } from 'lucide-react';
+import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone, CreditCard, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -37,6 +37,31 @@ export default function OwnerDashboard() {
   const setStatus = async (id, status) => {
     await supabase.from('appointments').update({ status }).eq('id', id);
     setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+  };
+
+  // فتح واتساب برسالة تأكيد جاهزة لرقم العميل (يُرسل من رقم المكتب بنقرة)
+  const sendWhatsAppConfirm = (a) => {
+    const phone = (a.client_phone || '').replace(/[^0-9]/g, '').replace(/^0/, '966');
+    if (!phone) {
+      alert('لا يوجد رقم جوال لهذا العميل لإرسال التأكيد.');
+      return;
+    }
+    const text =
+      `مرحباً ${a.client_name} 👋\n` +
+      `تم تأكيد موعد استشارتك في مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية ✅\n\n` +
+      `📋 نوع الاستشارة: ${a.consultation_type}\n` +
+      `📅 التاريخ: ${a.date}\n` +
+      `⏰ الوقت: ${a.time?.slice(0, 5)}\n` +
+      `💳 القيمة: ${a.price} ر.س\n\n` +
+      `يسعدنا خدمتك ونعتزّ بثقتك بنا. لأي استفسار نحن في خدمتك دائماً.\n` +
+      `مع تحيات فريق مكتب ساير بن فارس المطيري ⚖️`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  // الموافقة على الحجز + فتح رسالة التأكيد عبر واتساب مباشرة
+  const approveAndNotify = (a) => {
+    if (a.client_phone) sendWhatsAppConfirm(a); // متزامن للحفاظ على إذن فتح النافذة
+    setStatus(a.id, 'approved');
   };
 
   const togglePaid = async (id, current) => {
@@ -160,9 +185,15 @@ export default function OwnerDashboard() {
                         </p>
                       </div>
                       {a.status !== 'approved' && (
-                        <button onClick={() => setStatus(a.id, 'approved')}
+                        <button onClick={() => approveAndNotify(a)}
                           className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1 ml-2">
-                          <Check size={16} /> موافقة
+                          <Check size={16} /> موافقة وتأكيد واتساب
+                        </button>
+                      )}
+                      {a.status === 'approved' && a.client_phone && (
+                        <button onClick={() => sendWhatsAppConfirm(a)}
+                          className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1 ml-2">
+                          <MessageCircle size={16} /> إعادة إرسال التأكيد
                         </button>
                       )}
                       {a.status !== 'rejected' && (
