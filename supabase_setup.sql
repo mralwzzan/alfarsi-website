@@ -40,6 +40,14 @@ drop policy if exists "owner update appointments" on public.appointments;
 create policy "owner update appointments" on public.appointments for update
   using (auth.jwt() ->> 'email' = 'mr.alwzzan@gmail.com');
 
+-- العميل يلغي (يحذف) حجزه فقط؛ والمالك يحذف أي حجز
+drop policy if exists "delete own appointment" on public.appointments;
+create policy "delete own appointment" on public.appointments for delete
+  using (
+    auth.uid() = user_id
+    or auth.jwt() ->> 'email' = 'mr.alwzzan@gmail.com'
+  );
+
 
 -- جدول المواعيد المتاحة (يضيفها المالك ليختار منها العملاء)
 create table if not exists public.available_slots (
