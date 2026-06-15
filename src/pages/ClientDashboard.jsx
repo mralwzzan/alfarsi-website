@@ -205,9 +205,10 @@ export default function ClientDashboard() {
                   placeholder="05xxxxxxxx" required />
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">التاريخ (سنة - شهر - يوم)</label>
-                <input type="date" lang="en-CA" dir="ltr" value={form.date} min={today} onChange={(e) => validate(e.target.value, form.type)}
-                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 text-left" required />
+                <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
+                <input type="date" value={form.date} min={today} onChange={(e) => validate(e.target.value, form.type)}
+                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500" required />
+                <p className="text-slate-400 text-xs mt-1">الصيغة: سنة - شهر - يوم (مثال: 2026-06-15)</p>
                 {dateError && <p className="text-red-600 text-sm mt-2">{dateError}</p>}
               </div>
 
