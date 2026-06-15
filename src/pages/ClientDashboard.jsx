@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Calendar, Clock, Plus, CreditCard } from 'lucide-react';
+import { LogOut, Calendar, Clock, Plus, CreditCard, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -98,6 +98,18 @@ export default function ClientDashboard() {
     fetchBooked(value);
   };
 
+  // إلغاء حجز العميل — يحرّر الموعد ليصبح متاحاً من جديد
+  const cancelBooking = async (a) => {
+    if (!window.confirm('هل أنت متأكد من إلغاء هذا الحجز؟')) return;
+    const { error } = await supabase.from('appointments').delete().eq('id', a.id);
+    if (error) {
+      alert('تعذّر الإلغاء: ' + error.message);
+      return;
+    }
+    setAppointments((prev) => prev.filter((x) => x.id !== a.id));
+    if (form.date === a.date) fetchBooked(a.date);
+  };
+
   // الدفع الإلكتروني (Apple Pay) قيد التفعيل — واجهة جاهزة الآن
   const payNow = () => {
     alert('💳 الدفع الإلكتروني (Apple Pay ومدى والبطاقات) قيد التفعيل وسيتوفّر قريباً.\nيمكنك حالياً الدفع في المكتب أو عبر التحويل.');
@@ -193,9 +205,9 @@ export default function ClientDashboard() {
                   placeholder="05xxxxxxxx" required />
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
-                <input type="date" value={form.date} min={today} onChange={(e) => validate(e.target.value, form.type)}
-                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500" required />
+                <label className="block text-slate-700 font-semibold mb-2">التاريخ (سنة - شهر - يوم)</label>
+                <input type="date" lang="en-CA" dir="ltr" value={form.date} min={today} onChange={(e) => validate(e.target.value, form.type)}
+                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 text-left" required />
                 {dateError && <p className="text-red-600 text-sm mt-2">{dateError}</p>}
               </div>
 
@@ -276,12 +288,18 @@ export default function ClientDashboard() {
                         ) : (
                           <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">غير مدفوع</span>
                         )}
-                        {a.payment_status !== 'paid' && (
-                          <button onClick={payNow}
-                            className="bg-slate-900 hover:bg-black text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-2">
-                            <CreditCard size={16} /> ادفع الآن
+                        <div className="flex gap-2">
+                          {a.payment_status !== 'paid' && (
+                            <button onClick={payNow}
+                              className="bg-slate-900 hover:bg-black text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-2">
+                              <CreditCard size={16} /> ادفع الآن
+                            </button>
+                          )}
+                          <button onClick={() => cancelBooking(a)}
+                            className="bg-slate-100 hover:bg-red-100 text-red-600 text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1">
+                            <Trash2 size={16} /> إلغاء
                           </button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   );
