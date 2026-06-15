@@ -64,6 +64,12 @@ export default function ClientDashboard() {
   };
 
   useEffect(() => {
+    // إن جاء العميل بعد الضغط على خدمة معيّنة، نحدّدها مسبقاً
+    const sel = sessionStorage.getItem('selectedService');
+    if (sel && PRICES[sel]) {
+      sessionStorage.removeItem('selectedService');
+      setForm((f) => ({ ...f, type: sel }));
+    }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
