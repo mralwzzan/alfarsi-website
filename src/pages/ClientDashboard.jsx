@@ -38,6 +38,9 @@ const fmtTime = (hhmm) => {
   return `${h12}:00 ${period}`;
 };
 
+// أشهر السنة بالعربية لاختيار التاريخ
+const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
 export default function ClientDashboard() {
   const { user, signOut } = useAuth();
   const [appointments, setAppointments] = useState([]);
@@ -55,6 +58,30 @@ export default function ClientDashboard() {
 
   const clientName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'عميلنا';
   const today = new Date().toISOString().split('T')[0];
+
+  // أجزاء التاريخ المختار (سنة/شهر/يوم) عبر قوائم منسدلة بالعربي
+  const [dp, setDp] = useState({ y: '', m: '', d: '' });
+  const thisYear = new Date().getFullYear();
+  const YEARS = [thisYear, thisYear + 1];
+  const daysInMonth = dp.y && dp.m ? new Date(Number(dp.y), Number(dp.m), 0).getDate() : 31;
+
+  const onDatePart = (key, value) => {
+    const parts = { ...dp, [key]: value };
+    // تصحيح اليوم إن تجاوز عدد أيام الشهر الجديد
+    if ((key === 'm' || key === 'y') && parts.d) {
+      const maxD = parts.y && parts.m ? new Date(Number(parts.y), Number(parts.m), 0).getDate() : 31;
+      if (Number(parts.d) > maxD) parts.d = '';
+    }
+    setDp(parts);
+    if (parts.y && parts.m && parts.d) {
+      const dateStr = `${parts.y}-${String(parts.m).padStart(2, '0')}-${String(parts.d).padStart(2, '0')}`;
+      validate(dateStr, form.type);
+    } else {
+      setForm((f) => ({ ...f, date: '', time: '' }));
+      setBookedTimes([]);
+      setDateError('');
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -87,6 +114,11 @@ export default function ClientDashboard() {
     if (!value) {
       setBookedTimes([]);
       setDateError('');
+      return;
+    }
+    if (value < today) {
+      setDateError('لا يمكن اختيار تاريخ ماضٍ.');
+      setBookedTimes([]);
       return;
     }
     if (!dayAllowed(value, type)) {
@@ -150,6 +182,7 @@ export default function ClientDashboard() {
     setMsg('✅ تم إرسال طلب الحجز! سيصلك إشعار بالموافقة قريباً.');
     fetchBooked(form.date);
     setForm({ type: 'احوال شخصية', phone: form.phone, date: '', time: '', description: '' });
+    setDp({ y: '', m: '', d: '' });
     setBookedTimes([]);
     load();
   };
@@ -206,9 +239,23 @@ export default function ClientDashboard() {
               </div>
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
-                <input type="date" value={form.date} min={today} onChange={(e) => validate(e.target.value, form.type)}
-                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500" required />
-                <p className="text-slate-400 text-xs mt-1">الصيغة: سنة - شهر - يوم (مثال: 2026-06-15)</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <select value={dp.y} onChange={(e) => onDatePart('y', e.target.value)}
+                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-blue-500">
+                    <option value="">السنة</option>
+                    {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                  <select value={dp.m} onChange={(e) => onDatePart('m', e.target.value)}
+                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-blue-500">
+                    <option value="">الشهر</option>
+                    {MONTHS.map((name, i) => <option key={i} value={i + 1}>{name}</option>)}
+                  </select>
+                  <select value={dp.d} onChange={(e) => onDatePart('d', e.target.value)}
+                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-blue-500">
+                    <option value="">اليوم</option>
+                    {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
                 {dateError && <p className="text-red-600 text-sm mt-2">{dateError}</p>}
               </div>
 
