@@ -435,11 +435,8 @@ export default function AlFarsiLawOffice() {
                   <Phone className="text-brand-600 mt-1" size={28} />
                   <div>
                     <h4 className="text-lg font-bold text-slate-800">هاتف المكتب</h4>
-                    <a href="tel:0590164400" className="text-brand-600 hover:underline text-lg block" dir="ltr">
+                    <a href="https://wa.me/966590164400" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline text-lg block" dir="ltr">
                       0590164400
-                    </a>
-                    <a href="https://wa.me/966551055959" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline text-sm" dir="ltr">
-                      واتساب: 0551055959
                     </a>
                   </div>
                 </div>
