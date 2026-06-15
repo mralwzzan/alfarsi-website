@@ -93,6 +93,21 @@ export default function OwnerDashboard() {
 
   const shown = filter === 'all' ? appointments : appointments.filter((a) => a.status === filter);
 
+  // قائمة العملاء (فريدة) مستخرجة من الحجوزات مع أرقام جوالهم
+  const clients = Object.values(
+    appointments.reduce((acc, a) => {
+      const key = a.client_email || a.client_phone || a.client_name;
+      if (!acc[key]) {
+        acc[key] = { name: a.client_name, email: a.client_email, phone: a.client_phone, count: 0 };
+      }
+      if (!acc[key].phone && a.client_phone) acc[key].phone = a.client_phone;
+      acc[key].count += 1;
+      return acc;
+    }, {})
+  );
+
+  const waLink = (phone) => `https://wa.me/${(phone || '').replace(/[^0-9]/g, '').replace(/^0/, '966')}`;
+
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
@@ -241,6 +256,48 @@ export default function OwnerDashboard() {
             )}
           </section>
         </div>
+
+        {/* Clients list */}
+        <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mt-8">
+          <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <User size={22} className="text-brand-600" /> قائمة العملاء ({clients.length})
+          </h2>
+          {clients.length === 0 ? (
+            <p className="text-slate-400 text-center py-6">لا يوجد عملاء بعد.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-right">
+                <thead>
+                  <tr className="text-slate-500 border-b border-slate-200">
+                    <th className="py-2 px-2 font-semibold">الاسم</th>
+                    <th className="py-2 px-2 font-semibold">البريد</th>
+                    <th className="py-2 px-2 font-semibold">الجوال</th>
+                    <th className="py-2 px-2 font-semibold">الحجوزات</th>
+                    <th className="py-2 px-2 font-semibold">تواصل</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clients.map((c, i) => (
+                    <tr key={i} className="border-b border-slate-100">
+                      <td className="py-3 px-2 font-semibold text-slate-800">{c.name}</td>
+                      <td className="py-3 px-2 text-slate-600">{c.email || '-'}</td>
+                      <td className="py-3 px-2 text-slate-600" dir="ltr">{c.phone || '-'}</td>
+                      <td className="py-3 px-2 text-slate-600">{c.count}</td>
+                      <td className="py-3 px-2">
+                        {c.phone && (
+                          <span className="flex items-center gap-3">
+                            <a href={`tel:${c.phone}`} className="text-brand-600 hover:underline">اتصال</a>
+                            <a href={waLink(c.phone)} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">واتساب</a>
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
