@@ -60,3 +60,16 @@ drop policy if exists "owner manage slots" on public.available_slots;
 create policy "owner manage slots" on public.available_slots for all
   using (auth.jwt() ->> 'email' = 'mr.alwzzan@gmail.com')
   with check (auth.jwt() ->> 'email' = 'mr.alwzzan@gmail.com');
+
+
+-- منع حجز نفس الموعد مرتين (التاريخ + الوقت) ما لم يكن مرفوضاً
+create unique index if not exists uniq_active_slot
+  on public.appointments (date, "time")
+  where status <> 'rejected';
+
+-- عرض يُظهر الأوقات المحجوزة فقط (بدون أي بيانات شخصية) ليتمكّن العملاء من رؤية
+-- المواعيد المقفلة دون رؤية بيانات بعضهم. يتجاوز هذا العرض RLS لأنه يكشف عمودين فقط.
+create or replace view public.booked_times as
+  select date, "time" from public.appointments where status <> 'rejected';
+
+grant select on public.booked_times to authenticated;
