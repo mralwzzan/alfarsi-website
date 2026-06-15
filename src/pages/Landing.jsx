@@ -21,7 +21,9 @@ export default function AlFarsiLawOffice() {
   const accountPath = user ? (isOwner ? '/admin' : '/dashboard') : '/login';
 
   // زر "احجز الآن" يوجّه العميل إلى المنصة (تسجيل دخول ثم لوحة الحجز)
-  const openBookingForm = () => {
+  // عند تمرير نوع الخدمة، يُحفظ ليُحدَّد مسبقاً في نموذج الحجز
+  const openBookingForm = (serviceType) => {
+    if (serviceType) sessionStorage.setItem('selectedService', serviceType);
     navigate(accountPath);
   };
 
