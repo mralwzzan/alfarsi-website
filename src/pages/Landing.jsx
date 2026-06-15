@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard, Scale } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard, Scale, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -384,11 +384,22 @@ export default function AlFarsiLawOffice() {
               
               <div className="space-y-6 mb-8">
                 <div className="flex items-start gap-4">
+                  <User className="text-brand-600 mt-1" size={28} />
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-800">المدير العام</h4>
+                    <p className="text-slate-700 text-lg">محمد بن أمين الوزان</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
                   <Phone className="text-brand-600 mt-1" size={28} />
                   <div>
-                    <h4 className="text-lg font-bold text-slate-800">الهاتف</h4>
-                    <a href="tel:0551055959" className="text-brand-600 hover:underline text-lg">
-                      0551055959
+                    <h4 className="text-lg font-bold text-slate-800">هاتف المكتب</h4>
+                    <a href="tel:0590164400" className="text-brand-600 hover:underline text-lg block" dir="ltr">
+                      0590164400
+                    </a>
+                    <a href="https://wa.me/966551055959" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline text-sm" dir="ltr">
+                      واتساب: 0551055959
                     </a>
                   </div>
                 </div>
@@ -514,7 +525,11 @@ export default function AlFarsiLawOffice() {
                   <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-14 w-auto" />
                 </div>
               </div>
-              <p className="text-sm">نقدم خدمات قانونية احترافية وموثوقة منذ سنوات.</p>
+              <p className="text-sm mb-3">نقدم خدمات قانونية احترافية وموثوقة منذ سنوات.</p>
+              <div className="border-t border-brand-700 pt-3">
+                <p className="text-xs text-brand-200">المدير العام</p>
+                <p className="text-white font-bold">محمد بن أمين الوزان</p>
+              </div>
             </div>
 
             <div>
@@ -530,7 +545,8 @@ export default function AlFarsiLawOffice() {
             <div>
               <h4 className="text-white font-bold mb-4">تواصل سريع</h4>
               <ul className="space-y-2 text-sm">
-                <li>📞 0551055959</li>
+                <li>📞 <span dir="ltr">0590164400</span> (المكتب)</li>
+                <li>💬 <a href="https://wa.me/966551055959" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><span dir="ltr">0551055959</span> (واتساب)</a></li>
                 <li>📧 <a href="mailto:mr.alwzzan@gmail.com" className="hover:text-white transition">mr.alwzzan@gmail.com</a></li>
                 <li>📍 جدة - برج الشاشة</li>
                 <li>🕐 الأحد - الخميس: 9 ص - 6 م</li>
