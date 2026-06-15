@@ -12,8 +12,8 @@ import {
 
 const BLANK = {
   title: '', type: 'شقة', purpose: 'بيع', city: 'الرياض', district: '',
-  price: '', area: '', bedrooms: '', bathrooms: '', description: '',
-  image_url: '', featured: false, status: 'available',
+  price: '', area: '', bedrooms: '', bathrooms: '', units: '', annual_income: '',
+  description: '', image_url: '', featured: false, status: 'available',
 };
 
 // تنبيه صوتي قصير عند وصول استفسار جديد
@@ -89,6 +89,7 @@ export default function OwnerDashboard() {
       title: p.title || '', type: p.type || 'شقة', purpose: p.purpose || 'بيع',
       city: p.city || 'الرياض', district: p.district || '', price: p.price ?? '',
       area: p.area ?? '', bedrooms: p.bedrooms ?? '', bathrooms: p.bathrooms ?? '',
+      units: p.units ?? '', annual_income: p.annual_income ?? '',
       description: p.description || '', image_url: p.image_url || '',
       featured: !!p.featured, status: p.status || 'available',
     });
@@ -107,6 +108,8 @@ export default function OwnerDashboard() {
       area: form.area === '' ? null : Number(form.area),
       bedrooms: form.bedrooms === '' ? null : Number(form.bedrooms),
       bathrooms: form.bathrooms === '' ? null : Number(form.bathrooms),
+      units: form.units === '' ? null : Number(form.units),
+      annual_income: form.annual_income === '' ? null : Number(form.annual_income),
       description: form.description || null,
       image_url: form.image_url || null,
       featured: form.featured, status: form.status,
@@ -225,6 +228,12 @@ export default function OwnerDashboard() {
                     className="bg-slate-50 border border-slate-300 px-3 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" placeholder="غرف النوم" />
                   <input type="number" value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })}
                     className="bg-slate-50 border border-slate-300 px-3 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" placeholder="دورات المياه" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="number" value={form.units} onChange={(e) => setForm({ ...form, units: e.target.value })}
+                    className="bg-slate-50 border border-slate-300 px-3 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" placeholder="عدد الوحدات" />
+                  <input type="number" value={form.annual_income} onChange={(e) => setForm({ ...form, annual_income: e.target.value })}
+                    className="bg-slate-50 border border-slate-300 px-3 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" placeholder="الدخل السنوي (ر.س)" />
                 </div>
                 <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-300 px-3 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" placeholder="رابط الصورة (URL)" dir="ltr" />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  MapPin, BedDouble, Bath, Maximize, ArrowRight, Phone, Check, Tag, Building2,
+  MapPin, BedDouble, Bath, Maximize, ArrowRight, Phone, Check, Tag, Building2, TrendingUp,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -72,6 +72,8 @@ export default function PropertyDetail() {
   const st = STATUSES[p.status] || STATUSES.available;
   const specs = [
     p.area ? { icon: Maximize, label: 'المساحة', value: `${p.area} م²` } : null,
+    p.units ? { icon: Building2, label: 'عدد الوحدات', value: `${p.units} وحدة` } : null,
+    p.annual_income ? { icon: TrendingUp, label: 'الدخل السنوي', value: `${formatPrice(p.annual_income)} ر.س` } : null,
     p.bedrooms ? { icon: BedDouble, label: 'غرف النوم', value: p.bedrooms } : null,
     p.bathrooms ? { icon: Bath, label: 'دورات المياه', value: p.bathrooms } : null,
     { icon: Tag, label: 'النوع', value: p.type },

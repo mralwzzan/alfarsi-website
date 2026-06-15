@@ -96,11 +96,12 @@ export default function Properties() {
             <select value={filters.max} onChange={(e) => update('max', e.target.value)}
               className="bg-slate-50 border border-slate-300 px-3 py-2.5 rounded-xl focus:outline-none focus:border-brand-500 text-slate-700">
               <option value="">السعر الأقصى</option>
-              <option value="100000">حتى 100 ألف</option>
-              <option value="500000">حتى 500 ألف</option>
-              <option value="1000000">حتى مليون</option>
-              <option value="2000000">حتى 2 مليون</option>
+              <option value="3000000">حتى 3 مليون</option>
               <option value="5000000">حتى 5 مليون</option>
+              <option value="8000000">حتى 8 مليون</option>
+              <option value="12000000">حتى 12 مليون</option>
+              <option value="20000000">حتى 20 مليون</option>
+              <option value="40000000">حتى 40 مليون</option>
             </select>
           </div>
           {hasFilters && (

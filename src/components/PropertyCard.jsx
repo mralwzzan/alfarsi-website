@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, BedDouble, Bath, Maximize, ArrowLeft } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Maximize, Building2, ArrowLeft, TrendingUp } from 'lucide-react';
 import { formatPrice, priceSuffix, STATUSES, TYPE_EMOJI } from '../data/properties';
 
 export default function PropertyCard({ p }) {
@@ -29,11 +29,18 @@ export default function PropertyCard({ p }) {
           <MapPin size={15} /> {p.city}{p.district ? ` — ${p.district}` : ''}
         </p>
 
-        <div className="flex items-center gap-4 text-slate-600 text-sm mb-4 flex-wrap">
+        <div className="flex items-center gap-4 text-slate-600 text-sm mb-3 flex-wrap">
           {p.area ? <span className="flex items-center gap-1"><Maximize size={15} /> {p.area} م²</span> : null}
+          {p.units ? <span className="flex items-center gap-1"><Building2 size={15} /> {p.units} وحدة</span> : null}
           {p.bedrooms ? <span className="flex items-center gap-1"><BedDouble size={15} /> {p.bedrooms}</span> : null}
           {p.bathrooms ? <span className="flex items-center gap-1"><Bath size={15} /> {p.bathrooms}</span> : null}
         </div>
+
+        {p.annual_income ? (
+          <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-lg mb-4 w-fit">
+            <TrendingUp size={14} /> دخل سنوي {formatPrice(p.annual_income)} ر.س
+          </div>
+        ) : null}
 
         <div className="mt-auto flex items-end justify-between pt-3 border-t border-slate-100">
           <div>
