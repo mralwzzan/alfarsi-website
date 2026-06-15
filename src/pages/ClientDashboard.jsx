@@ -253,7 +253,14 @@ export default function ClientDashboard() {
                   <select value={dp.d} onChange={(e) => onDatePart('d', e.target.value)}
                     className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-blue-500">
                     <option value="">اليوم</option>
-                    {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => <option key={d} value={d}>{d}</option>)}
+                    {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
+                      let closed = false;
+                      if (dp.y && dp.m && !isDoc(form.type)) {
+                        const wd = new Date(Number(dp.y), Number(dp.m) - 1, d).getDay();
+                        closed = wd === 5 || wd === 6; // الجمعة / السبت
+                      }
+                      return <option key={d} value={d} disabled={closed}>{d}{closed ? ' (مغلق)' : ''}</option>;
+                    })}
                   </select>
                 </div>
                 {dateError && <p className="text-red-600 text-sm mt-2">{dateError}</p>}
