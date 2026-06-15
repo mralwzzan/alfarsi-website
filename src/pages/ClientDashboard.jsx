@@ -6,8 +6,23 @@ import { useAuth } from '../context/AuthContext';
 
 const PRICES = { 'احوال شخصية': 300, 'تجارية': 750, 'عامة': 500, 'التوثيق': 750 };
 
-// أوقات العمل: من 9 صباحاً حتى 5 مساءً (كل استشارة ساعة)
+// أوقات العمل العامة: من 9 صباحاً حتى 5 مساءً (كل استشارة ساعة)
 const WORK_HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
+
+// أوقات خدمة التوثيق: من 8 صباحاً حتى منتصف الليل (كل أيام الأسبوع)
+const DOC_HOURS = [
+  '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
+  '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00',
+];
+
+// التوثيق يستثنى من قيود الأيام/الساعات العامة
+const isDoc = (type) => type === 'التوثيق';
+const hoursFor = (type) => (isDoc(type) ? DOC_HOURS : WORK_HOURS);
+const dayAllowed = (dateStr, type) => {
+  if (isDoc(type)) return true; // متاح كل الأيام
+  const day = new Date(dateStr + 'T00:00:00').getDay(); // الأحد=0 ... الجمعة=5 السبت=6
+  return day !== 5 && day !== 6;
+};
 
 const STATUS = {
   pending: { label: 'قيد المراجعة', cls: 'bg-amber-100 text-amber-700' },
@@ -59,17 +74,17 @@ export default function ClientDashboard() {
     setBookedTimes((data || []).map((r) => r.time.slice(0, 5)));
   };
 
-  const handleDateChange = (value) => {
-    setForm((f) => ({ ...f, date: value, time: '' }));
+  // التحقق من التاريخ بحسب نوع الخدمة (التوثيق له قواعد مختلفة)
+  const validate = (value, type) => {
+    setForm((f) => ({ ...f, date: value, type, time: '' }));
     setMsg('');
     if (!value) {
       setBookedTimes([]);
       setDateError('');
       return;
     }
-    const day = new Date(value + 'T00:00:00').getDay(); // الأحد=0 ... الجمعة=5 السبت=6
-    if (day === 5 || day === 6) {
-      setDateError('عذراً، أوقات العمل من الأحد إلى الخميس فقط.');
+    if (!dayAllowed(value, type)) {
+      setDateError('عذراً، أوقات العمل لهذه الخدمة من الأحد إلى الخميس فقط.');
       setBookedTimes([]);
       return;
     }
@@ -140,14 +155,18 @@ export default function ClientDashboard() {
             <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
               <Plus size={22} className="text-blue-600" /> حجز استشارة جديدة
             </h2>
-            <p className="text-slate-400 text-sm mb-4">🕘 أوقات العمل: الأحد – الخميس، 9 صباحاً – 5 مساءً</p>
+            <p className="text-slate-400 text-sm mb-4">
+              {isDoc(form.type)
+                ? '🕗 التوثيق: متاح كل أيام الأسبوع، 8 صباحاً – 12 منتصف الليل'
+                : '🕘 أوقات العمل: الأحد – الخميس، 9 صباحاً – 5 مساءً'}
+            </p>
             {msg && <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-4 text-sm">{msg}</div>}
             <form onSubmit={book} className="space-y-4">
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">نوع الاستشارة</label>
                 <select
                   value={form.type}
-                  onChange={(e) => setForm({ ...form, type: e.target.value })}
+                  onChange={(e) => validate(form.date, e.target.value)}
                   className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500"
                 >
                   <option value="احوال شخصية">احوال شخصية - 300 ر.س</option>
@@ -164,7 +183,7 @@ export default function ClientDashboard() {
               </div>
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
-                <input type="date" value={form.date} min={today} onChange={(e) => handleDateChange(e.target.value)}
+                <input type="date" value={form.date} min={today} onChange={(e) => validate(e.target.value, form.type)}
                   className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500" required />
                 {dateError && <p className="text-red-600 text-sm mt-2">{dateError}</p>}
               </div>
@@ -177,7 +196,7 @@ export default function ClientDashboard() {
                   </p>
                 ) : (
                   <div className="grid grid-cols-4 gap-2">
-                    {WORK_HOURS.map((h) => {
+                    {hoursFor(form.type).map((h) => {
                       const taken = bookedTimes.includes(h);
                       const selected = form.time === h;
                       return (
