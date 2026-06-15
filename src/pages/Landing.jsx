@@ -194,7 +194,7 @@ export default function AlFarsiLawOffice() {
             <p className="text-xl text-slate-600">نقدم مجموعة شاملة من الخدمات القانونية المتخصصة</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Service 1 */}
             <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl p-8 border border-brand-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('احوال شخصية')}>
               <div className="text-5xl mb-6">⚖️</div>
@@ -246,6 +246,19 @@ export default function AlFarsiLawOffice() {
                 <ArrowRight size={20} />
               </button>
             </div>
+
+            {/* Service 5 */}
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl p-8 border border-teal-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('عمالية')}>
+              <div className="text-5xl mb-6">👷</div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">استشارة عمالية</h3>
+              <p className="text-slate-700 mb-6 leading-relaxed">
+                قضايا العمل والعمال: عقود العمل، الأجور، الفصل التعسفي، نهاية الخدمة، والمنازعات العمالية.
+              </p>
+              <button onClick={() => openBookingForm('عمالية')} className="flex items-center text-teal-600 font-semibold hover:gap-3 transition-all gap-2">
+                احجز الآن
+                <ArrowRight size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -258,7 +271,7 @@ export default function AlFarsiLawOffice() {
             <p className="text-xl text-slate-600">أسعار واضحة وشفافة بدون رسوم مخفية</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
               <div className="text-4xl mb-4">⚖️</div>
               <h3 className="text-2xl font-bold text-slate-800 mb-2">احوال شخصية</h3>
@@ -313,6 +326,33 @@ export default function AlFarsiLawOffice() {
               <button onClick={() => openBookingForm('التوثيق')} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold transition">
                 احجز الآن
               </button>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
+              <div className="text-4xl mb-4">👷</div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">استشارة عمالية</h3>
+              <div className="text-4xl font-bold text-teal-600 mb-6">500 <span className="text-lg">ر.س</span></div>
+              <ul className="space-y-3 mb-8 text-slate-700">
+                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
+                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> قضايا العمل والعمال</li>
+                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> حماية حقوقك العمالية</li>
+              </ul>
+              <button onClick={() => openBookingForm('عمالية')} className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-bold transition">
+                احجز الآن
+              </button>
+            </div>
+          </div>
+
+          {/* ملاحظة خصم قيمة الاستشارة */}
+          <div className="mt-10 max-w-3xl mx-auto bg-gradient-to-l from-gold-50 to-white border-2 border-gold-300 rounded-2xl p-6 flex items-start gap-4 shadow-sm">
+            <div className="text-3xl">💡</div>
+            <div>
+              <h4 className="text-lg font-bold text-brand-800 mb-1">ميزة عملائنا</h4>
+              <p className="text-slate-700 leading-relaxed">
+                في حال توكيل المكتب بقضيتك، تُخصم كامل قيمة الاستشارة من إجمالي أتعاب القضية —
+                فاستشارتك ليست تكلفة إضافية، بل خطوتك الأولى نحو حقّك.
+                <span className="block text-sm text-slate-500 mt-1">(تنطبق على جميع الاستشارات عدا خدمة التوثيق)</span>
+              </p>
             </div>
           </div>
         </div>
