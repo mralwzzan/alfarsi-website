@@ -15,7 +15,7 @@ export default function Login() {
 
   const goAfterAuth = (email) => {
     const owner = email.toLowerCase() === 'mr.alwzzan@gmail.com';
-    navigate(owner ? '/admin' : '/dashboard', { replace: true });
+    navigate(owner ? '/admin' : '/', { replace: true });
   };
 
   const handleSubmit = async (e) => {
@@ -66,7 +66,7 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-gold-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center mb-8">
-          <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-20 w-auto" />
+          <img src="/logo.svg" alt="مؤسسة مارس العقارية" className="h-16 w-auto" />
         </Link>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">

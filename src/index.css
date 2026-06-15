@@ -27,7 +27,7 @@ body {
 }
 
 .hero-animated {
-  background: linear-gradient(-45deg, #2a0d10, #511a1f, #7a2930, #4a1620, #2a0d10);
+  background: linear-gradient(-45deg, #0f1a2e, #1a2945, #22355a, #16243d, #0f1a2e);
   background-size: 400% 400%;
   animation: gradientShift 14s ease infinite;
 }
@@ -40,7 +40,7 @@ body {
   animation: floatBlob 16s ease-in-out infinite;
 }
 
-/* رمز الميزان الكبير الخافت يتحرّك ببطء (إحساس الخلفية المتحركة) */
+/* رمز المبنى الكبير الخافت يتحرّك ببطء (إحساس الخلفية المتحركة) */
 @keyframes slowZoom {
   0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.10; }
   50% { transform: scale(1.28) rotate(6deg); opacity: 0.20; }

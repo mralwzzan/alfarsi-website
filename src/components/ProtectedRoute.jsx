@@ -13,7 +13,7 @@ export default function ProtectedRoute({ children, ownerOnly = false }) {
   }
 
   if (!user) return <Navigate to="/login" replace />;
-  if (ownerOnly && !isOwner) return <Navigate to="/dashboard" replace />;
+  if (ownerOnly && !isOwner) return <Navigate to="/" replace />;
 
   return children;
 }
