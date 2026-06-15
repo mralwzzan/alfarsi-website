@@ -289,16 +289,16 @@ export default function AlFarsiLawOffice() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
+            <div className="rounded-2xl p-8 border border-gold-500/40 shadow-xl transition hover:shadow-2xl text-white" style={{ background: 'linear-gradient(140deg, #7d1f2e 0%, #5a131f 50%, #3a0c14 100%)' }}>
               <div className="text-4xl mb-4">⚖️</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">احوال شخصية</h3>
-              <div className="text-4xl font-bold text-brand-600 mb-6">300 <span className="text-lg">ر.س</span></div>
-              <ul className="space-y-3 mb-8 text-slate-700">
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> استشارة مباشرة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> توثيق الموعد</li>
+              <h3 className="text-2xl font-bold mb-2">احوال شخصية</h3>
+              <div className="text-4xl font-bold text-gold-300 mb-6">300 <span className="text-lg">ر.س</span></div>
+              <ul className="space-y-3 mb-8 text-rose-50/90">
+                <li className="flex items-center gap-2"><Check size={20} className="text-gold-400" /> مدة ساعة كاملة</li>
+                <li className="flex items-center gap-2"><Check size={20} className="text-gold-400" /> استشارة مباشرة</li>
+                <li className="flex items-center gap-2"><Check size={20} className="text-gold-400" /> توثيق الموعد</li>
               </ul>
-              <button onClick={() => openBookingForm('احوال شخصية')} className="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-lg font-bold transition">
+              <button onClick={() => openBookingForm('احوال شخصية')} className="w-full bg-gold-500 hover:bg-gold-400 text-brand-900 py-3 rounded-lg font-bold transition">
                 احجز الآن
               </button>
             </div>
