@@ -28,9 +28,9 @@ body {
 
 .hero-animated {
   background:
-    radial-gradient(ellipse 85% 65% at 30% 30%, rgba(186, 110, 70, 0.55), transparent 60%),
-    radial-gradient(ellipse 70% 70% at 82% 78%, rgba(110, 46, 34, 0.6), transparent 65%),
-    linear-gradient(-45deg, #1f0d07, #3f1c13, #6a2e20, #4a1d16, #2a1109);
+    radial-gradient(ellipse 85% 65% at 30% 30%, rgba(180, 50, 66, 0.5), transparent 60%),
+    radial-gradient(ellipse 70% 70% at 82% 78%, rgba(110, 22, 36, 0.62), transparent 65%),
+    linear-gradient(-45deg, #260910, #5a131f, #7d1f2e, #4a0f1a, #2a0a10);
   background-size: 100% 100%, 100% 100%, 400% 400%;
   animation: gradientShift 20s ease infinite;
 }
@@ -104,9 +104,9 @@ body {
 .services-3d {
   position: relative;
   background:
-    radial-gradient(circle at 20% 15%, rgba(162, 60, 67, 0.55), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(122, 41, 48, 0.5), transparent 50%),
-    linear-gradient(160deg, #3a1216 0%, #511a1f 45%, #6a2329 100%);
+    radial-gradient(circle at 20% 15%, rgba(180, 50, 66, 0.5), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(110, 22, 36, 0.55), transparent 50%),
+    linear-gradient(160deg, #3a0c14 0%, #5a131f 45%, #7d1f2e 100%);
   overflow: hidden;
 }
 
