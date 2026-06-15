@@ -1,12 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// ⚙️ إعدادات الاتصال بقاعدة البيانات (Supabase)
-// تُملأ القيمتان التاليتان من لوحة Supabase: Settings → API
+// ⚙️ إعدادات الاتصال بقاعدة بيانات مؤسسة مارس العقارية (Supabase) — مشروع مستقل
+// 1) أنشئ مشروعاً جديداً خاصاً بمارس العقارية على https://supabase.com
+// 2) من Settings → API انسخ Project URL و anon public key، وضعهما أدناه.
+// 3) شغّل ملف supabase_setup.sql في SQL Editor لإنشاء الجداول والصلاحيات.
 // ملاحظة: المفتاح "anon public" مُصمّم ليكون عاماً، والحماية الفعلية عبر Row Level Security.
-const SUPABASE_URL = 'https://gqiwtwcsijmkvcyhyqds.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_OKpLwisifSCYp1MDlSO25w_o3FwxUWA';
+const SUPABASE_URL = '';        // مثال: https://xxxxxxxx.supabase.co
+const SUPABASE_ANON_KEY = '';   // مفتاح anon public الخاص بمشروع مارس العقارية
 
-// بريد المالك — صاحب صلاحيات لوحة الإدارة
+// بريد المالك — صاحب صلاحيات لوحة الإدارة (عدّله حسب الحاجة)
 export const OWNER_EMAIL = 'mr.alwzzan@gmail.com';
 
 export const isSupabaseConfigured =
