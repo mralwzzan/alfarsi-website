@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone, CreditCard, MessageCircle } from 'lucide-react';
+import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone, CreditCard, MessageCircle, Bell } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,6 +10,23 @@ const STATUS = {
   rejected: { label: 'مرفوض', cls: 'bg-red-100 text-red-700' },
 };
 
+// تنبيه صوتي قصير عند وصول طلب جديد
+const playBeep = () => {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.18, ctx.currentTime);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+    o.stop(ctx.currentTime + 0.45);
+  } catch (e) { /* تجاهل */ }
+};
+
 export default function OwnerDashboard() {
   const { signOut } = useAuth();
   const [appointments, setAppointments] = useState([]);
@@ -17,6 +34,7 @@ export default function OwnerDashboard() {
   const [newSlot, setNewSlot] = useState({ date: '', time: '' });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [toast, setToast] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -31,6 +49,30 @@ export default function OwnerDashboard() {
 
   useEffect(() => {
     load();
+
+    // طلب إذن إشعارات المتصفح (تنبيه على سطح المكتب حتى لو التبويب غير مفتوح)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    // الاشتراك في التحديث اللحظي: ينبّه فور وصول طلب حجز جديد
+    const channel = supabase
+      .channel('owner-appointments')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, (payload) => {
+        const a = payload.new;
+        setAppointments((prev) => (prev.some((x) => x.id === a.id) ? prev : [a, ...prev]));
+        setToast(`🔔 طلب حجز جديد من ${a.client_name || 'عميل'} — ${a.consultation_type || ''}`);
+        playBeep();
+        try {
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            new Notification('🔔 طلب حجز جديد', { body: `${a.client_name || 'عميل'} — ${a.consultation_type || ''}` });
+          }
+        } catch (e) { /* تجاهل */ }
+        setTimeout(() => setToast(''), 9000);
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -110,19 +152,48 @@ export default function OwnerDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* تنبيه فوري عند وصول طلب جديد */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-brand-700 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-2 animate-pulse">
+          <Bell size={20} /> {toast}
+        </div>
+      )}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-11 w-auto" />
             <span className="font-bold text-slate-800 hidden sm:inline">لوحة الإدارة</span>
           </Link>
-          <button onClick={signOut} className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-semibold">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setFilter('pending')} className="relative" title="الطلبات المعلّقة">
+              <Bell size={24} className="text-slate-600" />
+              {counts.pending > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {counts.pending}
+                </span>
+              )}
+            </button>
+            <button onClick={signOut} className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-semibold">
             <LogOut size={20} /> خروج
           </button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* تنبيه الطلبات المعلّقة */}
+        {counts.pending > 0 && (
+          <div className="mb-6 bg-gold-50 border-2 border-gold-300 rounded-2xl px-5 py-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Bell className="text-gold-600" size={24} />
+              <p className="font-bold text-brand-800">لديك {counts.pending} طلب بانتظار المراجعة — يرجى المباشرة.</p>
+            </div>
+            <button onClick={() => setFilter('pending')} className="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-4 py-2 rounded-lg whitespace-nowrap">
+              عرض الطلبات
+            </button>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
