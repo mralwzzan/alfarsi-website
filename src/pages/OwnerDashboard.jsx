@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail } from 'lucide-react';
+import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -128,6 +128,16 @@ export default function OwnerDashboard() {
                       <div className="text-sm text-slate-600 space-y-1 mb-3">
                         <p className="flex items-center gap-2"><User size={15} /> {a.client_name}</p>
                         <p className="flex items-center gap-2"><Mail size={15} /> {a.client_email}</p>
+                        {a.client_phone && (
+                          <p className="flex items-center gap-2">
+                            <Phone size={15} />
+                            <a href={`tel:${a.client_phone}`} className="text-blue-600 hover:underline">{a.client_phone}</a>
+                            <a href={`https://wa.me/${a.client_phone.replace(/[^0-9]/g, '').replace(/^0/, '966')}`}
+                              target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline text-xs">
+                              (واتساب)
+                            </a>
+                          </p>
+                        )}
                         <p className="flex items-center gap-4">
                           <span className="flex items-center gap-1"><Calendar size={15} /> {a.date}</span>
                           <span className="flex items-center gap-1"><Clock size={15} /> {a.time?.slice(0, 5)}</span>

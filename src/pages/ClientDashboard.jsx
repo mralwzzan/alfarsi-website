@@ -16,7 +16,13 @@ export default function ClientDashboard() {
   const { user, signOut } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [slots, setSlots] = useState([]);
-  const [form, setForm] = useState({ type: 'احوال شخصية', date: '', time: '', description: '' });
+  const [form, setForm] = useState({
+    type: 'احوال شخصية',
+    phone: user?.user_metadata?.phone || '',
+    date: '',
+    time: '',
+    description: '',
+  });
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -49,6 +55,7 @@ export default function ClientDashboard() {
       user_id: user.id,
       client_name: clientName,
       client_email: user.email,
+      client_phone: form.phone,
       consultation_type: form.type,
       price: PRICES[form.type],
       date: form.date,
@@ -61,7 +68,7 @@ export default function ClientDashboard() {
       return;
     }
     setMsg('✅ تم إرسال طلب الحجز! سيصلك إشعار بالموافقة قريباً.');
-    setForm({ type: 'احوال شخصية', date: '', time: '', description: '' });
+    setForm({ type: 'احوال شخصية', phone: form.phone, date: '', time: '', description: '' });
     load();
   };
 
@@ -102,6 +109,12 @@ export default function ClientDashboard() {
                   <option value="تجارية">تجارية - 750 ر.س</option>
                   <option value="عامة">عامة - 500 ر.س</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-slate-700 font-semibold mb-2">رقم الجوال</label>
+                <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500"
+                  placeholder="05xxxxxxxx" required />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
