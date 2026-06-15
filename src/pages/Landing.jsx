@@ -149,7 +149,7 @@ export default function AlFarsiLawOffice() {
             <p className="text-xl text-slate-600">نقدم مجموعة شاملة من الخدمات القانونية المتخصصة</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Service 1 */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 border border-blue-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('احوال شخصية')}>
               <div className="text-5xl mb-6">⚖️</div>
@@ -188,6 +188,19 @@ export default function AlFarsiLawOffice() {
                 <ArrowRight size={20} />
               </button>
             </div>
+
+            {/* Service 4 */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border border-purple-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('التوثيق')}>
+              <div className="text-5xl mb-6">📝</div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">التوثيق</h3>
+              <p className="text-slate-700 mb-6 leading-relaxed">
+                توثيق العقود والوكالات والإقرارات والمستندات القانونية بشكل نظامي وموثوق.
+              </p>
+              <button onClick={() => openBookingForm('التوثيق')} className="flex items-center text-purple-600 font-semibold hover:gap-3 transition-all gap-2">
+                احجز الآن
+                <ArrowRight size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -200,7 +213,7 @@ export default function AlFarsiLawOffice() {
             <p className="text-xl text-slate-600">أسعار واضحة وشفافة بدون رسوم مخفية</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
               <div className="text-4xl mb-4">⚖️</div>
               <h3 className="text-2xl font-bold text-slate-800 mb-2">احوال شخصية</h3>
@@ -240,6 +253,20 @@ export default function AlFarsiLawOffice() {
                 <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> توجيهات قانونية</li>
               </ul>
               <button onClick={() => openBookingForm('عامة')} className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition">
+                احجز الآن
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
+              <div className="text-4xl mb-4">📝</div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">التوثيق</h3>
+              <div className="text-4xl font-bold text-purple-600 mb-6">750 <span className="text-lg">ر.س</span></div>
+              <ul className="space-y-3 mb-8 text-slate-700">
+                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
+                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> توثيق نظامي موثوق</li>
+                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> عقود ووكالات وإقرارات</li>
+              </ul>
+              <button onClick={() => openBookingForm('التوثيق')} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold transition">
                 احجز الآن
               </button>
             </div>

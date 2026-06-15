@@ -4,7 +4,7 @@ import { LogOut, Calendar, Clock, Plus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
-const PRICES = { 'احوال شخصية': 300, 'تجارية': 750, 'عامة': 500 };
+const PRICES = { 'احوال شخصية': 300, 'تجارية': 750, 'عامة': 500, 'التوثيق': 750 };
 
 // أوقات العمل: من 9 صباحاً حتى 5 مساءً (كل استشارة ساعة)
 const WORK_HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
@@ -153,6 +153,7 @@ export default function ClientDashboard() {
                   <option value="احوال شخصية">احوال شخصية - 300 ر.س</option>
                   <option value="تجارية">تجارية - 750 ر.س</option>
                   <option value="عامة">عامة - 500 ر.س</option>
+                  <option value="التوثيق">التوثيق - 750 ر.س</option>
                 </select>
               </div>
               <div>
