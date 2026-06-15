@@ -480,6 +480,7 @@ export default function AlFarsiLawOffice() {
               <h4 className="text-white font-bold mb-4">تواصل سريع</h4>
               <ul className="space-y-2 text-sm">
                 <li>📞 0551055959</li>
+                <li>📧 <a href="mailto:mr.alwzzan@gmail.com" className="hover:text-white transition">mr.alwzzan@gmail.com</a></li>
                 <li>📍 جدة - برج الشاشة</li>
                 <li>🕐 الأحد - الخميس: 9 ص - 6 م</li>
               </ul>
