@@ -27,20 +27,43 @@ body {
 }
 
 .hero-animated {
-  background: linear-gradient(-45deg, #3a1216, #511a1f, #6a2329, #511a1f, #3a1216);
+  background: linear-gradient(-45deg, #2a0d10, #511a1f, #7a2930, #4a1620, #2a0d10);
   background-size: 400% 400%;
-  animation: gradientShift 18s ease infinite;
+  animation: gradientShift 14s ease infinite;
 }
 
 .hero-blob {
   position: absolute;
   border-radius: 9999px;
   filter: blur(70px);
-  opacity: 0.55;
+  opacity: 0.6;
   animation: floatBlob 16s ease-in-out infinite;
 }
 
+/* رمز الميزان الكبير الخافت يتحرّك ببطء (إحساس الخلفية المتحركة) */
+@keyframes slowZoom {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.10; }
+  50% { transform: scale(1.28) rotate(6deg); opacity: 0.20; }
+}
+.hero-motif {
+  position: absolute;
+  animation: slowZoom 16s ease-in-out infinite;
+}
+
+/* لمعة ضوئية ذهبية تنساب عبر الخلفية */
+@keyframes shine {
+  0% { transform: translateX(-160%) skewX(-18deg); }
+  100% { transform: translateX(280%) skewX(-18deg); }
+}
+.hero-shine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, rgba(208, 166, 78, 0.14), transparent);
+  animation: shine 10s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .hero-animated { animation: none; }
-  .hero-blob { animation: none; }
+  .hero-animated, .hero-blob, .hero-motif, .hero-shine { animation: none; }
 }

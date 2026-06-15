@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard, Scale } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -89,11 +89,14 @@ export default function AlFarsiLawOffice() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-20 px-4 hero-animated">
-        {/* توهّجات متحركة في الخلفية */}
+        {/* خلفية متحركة: توهّجات + رمز ميزان + لمعة ضوئية */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="hero-blob" style={{ width: '420px', height: '420px', top: '-90px', right: '-70px', background: 'radial-gradient(circle, rgba(208,166,78,0.45), transparent 70%)' }}></div>
           <div className="hero-blob" style={{ width: '360px', height: '360px', bottom: '-110px', left: '-50px', background: 'radial-gradient(circle, rgba(162,60,67,0.6), transparent 70%)', animationDelay: '5s' }}></div>
           <div className="hero-blob" style={{ width: '280px', height: '280px', top: '40%', left: '45%', background: 'radial-gradient(circle, rgba(194,161,96,0.3), transparent 70%)', animationDelay: '9s' }}></div>
+          <Scale className="hero-motif text-gold-400" style={{ width: '420px', height: '420px', top: '6%', left: '-30px' }} />
+          <Scale className="hero-motif text-gold-300" style={{ width: '300px', height: '300px', bottom: '0%', right: '8%', animationDelay: '7s' }} />
+          <div className="hero-shine"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
