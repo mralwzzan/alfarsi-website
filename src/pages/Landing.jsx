@@ -187,16 +187,21 @@ export default function AlFarsiLawOffice() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-white">
-        <div className="max-w-6xl mx-auto">
+      <section id="services" className="services-3d py-24 px-4">
+        <span className="glow-orb" style={{ width: '320px', height: '320px', background: '#d0a64e', top: '8%', right: '6%' }}></span>
+        <span className="glow-orb" style={{ width: '280px', height: '280px', background: '#a23c43', bottom: '10%', left: '4%', animationDelay: '6s' }}></span>
+        <div className="relative z-10 max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-4">خدماتنا</h2>
-            <p className="text-xl text-slate-600">نقدم مجموعة شاملة من الخدمات القانونية المتخصصة</p>
+            <div className="inline-block mb-4 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
+              <p className="text-gold-300 font-semibold text-sm">⚖️ خدماتنا القانونية</p>
+            </div>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">خدماتنا</h2>
+            <p className="text-xl text-brand-100">نقدم مجموعة شاملة من الخدمات القانونية المتخصصة</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Service 1 */}
-            <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl p-8 border border-brand-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('احوال شخصية')}>
+            <div className="service-card-3d bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl p-8 border border-brand-200 cursor-pointer" onClick={() => openBookingForm('احوال شخصية')}>
               <div className="text-5xl mb-6">⚖️</div>
               <h3 className="text-2xl font-bold text-slate-800 mb-4">احوال شخصية</h3>
               <p className="text-slate-700 mb-6 leading-relaxed">
@@ -209,7 +214,7 @@ export default function AlFarsiLawOffice() {
             </div>
 
             {/* Service 2 */}
-            <div className="bg-gradient-to-br from-gold-50 to-gold-100 rounded-2xl p-8 border border-gold-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('تجارية')}>
+            <div className="service-card-3d bg-gradient-to-br from-gold-50 to-gold-100 rounded-2xl p-8 border border-gold-200 cursor-pointer" onClick={() => openBookingForm('تجارية')}>
               <div className="text-5xl mb-6">💼</div>
               <h3 className="text-2xl font-bold text-slate-800 mb-4">الاستشارات التجارية</h3>
               <p className="text-slate-700 mb-6 leading-relaxed">
@@ -222,7 +227,7 @@ export default function AlFarsiLawOffice() {
             </div>
 
             {/* Service 3 */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border border-green-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('عامة')}>
+            <div className="service-card-3d bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border border-green-200 cursor-pointer" onClick={() => openBookingForm('عامة')}>
               <div className="text-5xl mb-6">📋</div>
               <h3 className="text-2xl font-bold text-slate-800 mb-4">الاستشارات العامة</h3>
               <p className="text-slate-700 mb-6 leading-relaxed">
@@ -235,7 +240,7 @@ export default function AlFarsiLawOffice() {
             </div>
 
             {/* Service 4 */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border border-purple-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('التوثيق')}>
+            <div className="service-card-3d bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border border-purple-200 cursor-pointer" onClick={() => openBookingForm('التوثيق')}>
               <div className="text-5xl mb-6">📝</div>
               <h3 className="text-2xl font-bold text-slate-800 mb-4">التوثيق</h3>
               <p className="text-slate-700 mb-6 leading-relaxed">
@@ -248,7 +253,7 @@ export default function AlFarsiLawOffice() {
             </div>
 
             {/* Service 5 */}
-            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl p-8 border border-teal-200 hover:shadow-lg transition cursor-pointer" onClick={() => openBookingForm('عمالية')}>
+            <div className="service-card-3d bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl p-8 border border-teal-200 cursor-pointer" onClick={() => openBookingForm('عمالية')}>
               <div className="text-5xl mb-6">👷</div>
               <h3 className="text-2xl font-bold text-slate-800 mb-4">استشارة عمالية</h3>
               <p className="text-slate-700 mb-6 leading-relaxed">
