@@ -27,10 +27,46 @@ body {
 }
 
 .hero-animated {
-  background: linear-gradient(-45deg, #2a0d10, #511a1f, #7a2930, #4a1620, #2a0d10);
-  background-size: 400% 400%;
-  animation: gradientShift 14s ease infinite;
+  background:
+    radial-gradient(ellipse 85% 65% at 30% 30%, rgba(186, 110, 70, 0.55), transparent 60%),
+    radial-gradient(ellipse 70% 70% at 82% 78%, rgba(110, 46, 34, 0.6), transparent 65%),
+    linear-gradient(-45deg, #1f0d07, #3f1c13, #6a2e20, #4a1d16, #2a1109);
+  background-size: 100% 100%, 100% 100%, 400% 400%;
+  animation: gradientShift 20s ease infinite;
 }
+
+/* دخول ناعم بانزلاق أفقي (يحاكي حركة الموقع المرجعي) */
+@keyframes heroSlideIn {
+  from { opacity: 0; transform: translateX(48px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.hero-enter { animation: heroSlideIn 1.05s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-enter-2 { animation: heroSlideIn 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both; }
+.hero-enter-3 { animation: heroSlideIn 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both; }
+.hero-enter-card { animation: heroSlideIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both; }
+
+/* طبقة تعتيم حواف (vignette) لإحساس العمق كصورة فوتوغرافية */
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 45%, rgba(20, 6, 8, 0.55) 100%);
+}
+
+/* نقاط ضوئية ذهبية ناعمة (bokeh) تطفو وتتلألأ */
+@keyframes bokehDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.25; }
+  50% { transform: translate(var(--bx, 20px), var(--by, -34px)) scale(1.2); opacity: 0.7; }
+}
+.bokeh {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(224, 188, 110, 0.9), rgba(208, 166, 78, 0.35) 55%, transparent 72%);
+  filter: blur(2px);
+  animation: bokehDrift var(--bd, 14s) ease-in-out infinite;
+  pointer-events: none;
+}
+.bokeh.soft { filter: blur(10px); }
 
 .hero-blob {
   position: absolute;
@@ -121,7 +157,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-animated, .hero-blob, .hero-motif, .hero-shine,
+  .hero-animated, .hero-blob, .hero-motif, .hero-shine, .bokeh,
+  .hero-enter, .hero-enter-2, .hero-enter-3, .hero-enter-card,
   .services-3d::before, .services-3d .glow-orb, .service-card-3d { animation: none; }
   .service-card-3d:hover { transform: translateY(-6px); }
 }

@@ -89,27 +89,39 @@ export default function AlFarsiLawOffice() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-20 px-4 hero-animated">
-        {/* خلفية متحركة: توهّجات + رمز ميزان + لمعة ضوئية */}
+        {/* خلفية فوتوغرافية دافئة: توهّجات + نقاط ضوئية ذهبية (bokeh) + رمز ميزان + تعتيم حواف */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="hero-blob" style={{ width: '420px', height: '420px', top: '-90px', right: '-70px', background: 'radial-gradient(circle, rgba(208,166,78,0.45), transparent 70%)' }}></div>
-          <div className="hero-blob" style={{ width: '360px', height: '360px', bottom: '-110px', left: '-50px', background: 'radial-gradient(circle, rgba(162,60,67,0.6), transparent 70%)', animationDelay: '5s' }}></div>
-          <div className="hero-blob" style={{ width: '280px', height: '280px', top: '40%', left: '45%', background: 'radial-gradient(circle, rgba(194,161,96,0.3), transparent 70%)', animationDelay: '9s' }}></div>
+          <div className="hero-blob" style={{ width: '460px', height: '460px', top: '-100px', right: '-80px', background: 'radial-gradient(circle, rgba(208,166,78,0.4), transparent 70%)' }}></div>
+          <div className="hero-blob" style={{ width: '380px', height: '380px', bottom: '-120px', left: '-60px', background: 'radial-gradient(circle, rgba(162,60,67,0.55), transparent 70%)', animationDelay: '5s' }}></div>
+          <div className="hero-blob" style={{ width: '300px', height: '300px', top: '38%', left: '42%', background: 'radial-gradient(circle, rgba(194,161,96,0.28), transparent 70%)', animationDelay: '9s' }}></div>
+
+          {/* نقاط ضوئية ذهبية تطفو وتتلألأ */}
+          <span className="bokeh soft" style={{ width: '120px', height: '120px', top: '12%', left: '10%', '--bd': '13s', '--bx': '26px', '--by': '-40px' }}></span>
+          <span className="bokeh" style={{ width: '46px', height: '46px', top: '22%', left: '78%', '--bd': '11s', '--bx': '-22px', '--by': '30px', animationDelay: '1.5s' }}></span>
+          <span className="bokeh soft" style={{ width: '90px', height: '90px', top: '60%', left: '20%', '--bd': '16s', '--bx': '18px', '--by': '-28px', animationDelay: '3s' }}></span>
+          <span className="bokeh" style={{ width: '30px', height: '30px', top: '70%', left: '62%', '--bd': '9s', '--bx': '-16px', '--by': '-24px', animationDelay: '0.8s' }}></span>
+          <span className="bokeh" style={{ width: '60px', height: '60px', top: '15%', left: '52%', '--bd': '12s', '--bx': '20px', '--by': '34px', animationDelay: '2.2s' }}></span>
+          <span className="bokeh soft" style={{ width: '150px', height: '150px', bottom: '8%', right: '12%', '--bd': '18s', '--bx': '-30px', '--by': '-26px', animationDelay: '4s' }}></span>
+          <span className="bokeh" style={{ width: '24px', height: '24px', top: '40%', left: '88%', '--bd': '10s', '--bx': '-14px', '--by': '20px', animationDelay: '1s' }}></span>
+          <span className="bokeh" style={{ width: '38px', height: '38px', bottom: '20%', left: '40%', '--bd': '14s', '--bx': '22px', '--by': '-30px', animationDelay: '2.8s' }}></span>
+
           <Scale className="hero-motif text-gold-400" style={{ width: '420px', height: '420px', top: '6%', left: '-30px' }} />
           <Scale className="hero-motif text-gold-300" style={{ width: '300px', height: '300px', bottom: '0%', right: '8%', animationDelay: '7s' }} />
           <div className="hero-shine"></div>
+          <div className="hero-vignette"></div>
         </div>
         <div className="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="inline-block mb-6 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
+            <div className="hero-enter inline-block mb-6 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
               <p className="text-gold-300 font-semibold text-sm">✨ خدماتنا القانونية</p>
             </div>
-            <h1 className="font-display text-3xl md:text-5xl font-bold text-white mb-6 leading-relaxed">
+            <h1 className="hero-enter-2 font-display text-3xl md:text-5xl font-bold text-white mb-6 leading-relaxed">
               مكتب <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">ساير بن فارس المطيري</span> للمحاماة والاستشارات الشرعية والقانونية
             </h1>
-            <p className="text-xl text-brand-100 mb-8 leading-relaxed">
+            <p className="hero-enter-3 text-xl text-brand-100 mb-8 leading-relaxed">
               نقدم استشارات قانونية متخصصة في المجالات العائلية والتجارية والعامة بخبرة واحترافية عالية. فريقنا مجهز لحماية حقوقك بأفضل الطرق القانونية.
             </p>
-            <div className="flex gap-4 flex-wrap">
+            <div className="hero-enter-3 flex gap-4 flex-wrap">
               <button
                 onClick={() => openBookingForm('احوال شخصية')}
                 className="bg-gold-500 hover:bg-gold-600 text-brand-900 px-8 py-4 rounded-lg font-bold text-lg transition shadow-lg hover:shadow-xl flex items-center gap-2"
@@ -122,7 +134,7 @@ export default function AlFarsiLawOffice() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="hero-enter-card relative">
             <div className="bg-gradient-to-br from-gold-400 to-brand-600 rounded-3xl p-1 shadow-2xl">
               <div className="bg-white rounded-3xl p-10 text-center">
                 <img src="/logo.jpeg" alt="شعار المكتب" className="w-full max-w-xs mx-auto mb-6" />
