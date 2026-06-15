@@ -6,16 +6,28 @@ import { useAuth } from '../context/AuthContext';
 
 const PRICES = { 'احوال شخصية': 300, 'تجارية': 750, 'عامة': 500 };
 
+// أوقات العمل: من 9 صباحاً حتى 5 مساءً (كل استشارة ساعة)
+const WORK_HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
+
 const STATUS = {
   pending: { label: 'قيد المراجعة', cls: 'bg-amber-100 text-amber-700' },
   approved: { label: 'تمت الموافقة ✓', cls: 'bg-green-100 text-green-700' },
   rejected: { label: 'مرفوض', cls: 'bg-red-100 text-red-700' },
 };
 
+// تنسيق الوقت لعرض ودّي (مثال: 1:00 م)
+const fmtTime = (hhmm) => {
+  const [h] = hhmm.split(':').map(Number);
+  const period = h >= 12 ? 'م' : 'ص';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:00 ${period}`;
+};
+
 export default function ClientDashboard() {
   const { user, signOut } = useAuth();
   const [appointments, setAppointments] = useState([]);
-  const [slots, setSlots] = useState([]);
+  const [bookedTimes, setBookedTimes] = useState([]); // الأوقات المحجوزة في التاريخ المختار
+  const [dateError, setDateError] = useState('');
   const [form, setForm] = useState({
     type: 'احوال شخصية',
     phone: user?.user_metadata?.phone || '',
@@ -27,15 +39,12 @@ export default function ClientDashboard() {
   const [loading, setLoading] = useState(true);
 
   const clientName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'عميلنا';
+  const today = new Date().toISOString().split('T')[0];
 
   const load = async () => {
     setLoading(true);
-    const [{ data: appts }, { data: avail }] = await Promise.all([
-      supabase.from('appointments').select('*').order('date', { ascending: true }),
-      supabase.from('available_slots').select('*').order('date', { ascending: true }),
-    ]);
-    setAppointments(appts || []);
-    setSlots(avail || []);
+    const { data } = await supabase.from('appointments').select('*').order('date', { ascending: true });
+    setAppointments(data || []);
     setLoading(false);
   };
 
@@ -44,9 +53,37 @@ export default function ClientDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // جلب الأوقات المحجوزة في تاريخ معيّن (من جميع العملاء) لإقفالها
+  const fetchBooked = async (date) => {
+    const { data } = await supabase.from('booked_times').select('time').eq('date', date);
+    setBookedTimes((data || []).map((r) => r.time.slice(0, 5)));
+  };
+
+  const handleDateChange = (value) => {
+    setForm((f) => ({ ...f, date: value, time: '' }));
+    setMsg('');
+    if (!value) {
+      setBookedTimes([]);
+      setDateError('');
+      return;
+    }
+    const day = new Date(value + 'T00:00:00').getDay(); // الأحد=0 ... الجمعة=5 السبت=6
+    if (day === 5 || day === 6) {
+      setDateError('عذراً، أوقات العمل من الأحد إلى الخميس فقط.');
+      setBookedTimes([]);
+      return;
+    }
+    setDateError('');
+    fetchBooked(value);
+  };
+
   const book = async (e) => {
     e.preventDefault();
     setMsg('');
+    if (dateError) {
+      setMsg('⚠️ ' + dateError);
+      return;
+    }
     if (!form.date || !form.time) {
       setMsg('⚠️ الرجاء اختيار التاريخ والوقت.');
       return;
@@ -64,11 +101,18 @@ export default function ClientDashboard() {
       status: 'pending',
     });
     if (error) {
-      setMsg('حدث خطأ: ' + error.message);
+      if (error.code === '23505') {
+        setMsg('⚠️ عذراً، هذا الموعد حُجز للتو. اختر وقتاً آخر.');
+        fetchBooked(form.date);
+      } else {
+        setMsg('حدث خطأ: ' + error.message);
+      }
       return;
     }
     setMsg('✅ تم إرسال طلب الحجز! سيصلك إشعار بالموافقة قريباً.');
+    fetchBooked(form.date);
     setForm({ type: 'احوال شخصية', phone: form.phone, date: '', time: '', description: '' });
+    setBookedTimes([]);
     load();
   };
 
@@ -93,9 +137,10 @@ export default function ClientDashboard() {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Booking form */}
           <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
               <Plus size={22} className="text-blue-600" /> حجز استشارة جديدة
             </h2>
+            <p className="text-slate-400 text-sm mb-4">🕘 أوقات العمل: الأحد – الخميس، 9 صباحاً – 5 مساءً</p>
             {msg && <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-4 text-sm">{msg}</div>}
             <form onSubmit={book} className="space-y-4">
               <div>
@@ -116,42 +161,57 @@ export default function ClientDashboard() {
                   className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500"
                   placeholder="05xxxxxxxx" required />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
-                  <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500" required />
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-2">الوقت</label>
-                  <input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500" required />
-                </div>
+              <div>
+                <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
+                <input type="date" value={form.date} min={today} onChange={(e) => handleDateChange(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500" required />
+                {dateError && <p className="text-red-600 text-sm mt-2">{dateError}</p>}
               </div>
+
+              <div>
+                <label className="block text-slate-700 font-semibold mb-2">الوقت المتاح</label>
+                {!form.date || dateError ? (
+                  <p className="text-slate-400 text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                    اختر تاريخاً (الأحد – الخميس) لعرض الأوقات المتاحة.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2">
+                    {WORK_HOURS.map((h) => {
+                      const taken = bookedTimes.includes(h);
+                      const selected = form.time === h;
+                      return (
+                        <button
+                          key={h}
+                          type="button"
+                          disabled={taken}
+                          onClick={() => setForm({ ...form, time: h })}
+                          className={`py-2 rounded-lg text-sm font-semibold border transition ${
+                            taken
+                              ? 'bg-slate-100 text-slate-300 border-slate-200 line-through cursor-not-allowed'
+                              : selected
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
+                          }`}
+                        >
+                          {fmtTime(h)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">تفاصيل (اختياري)</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 h-20 resize-none"
                   placeholder="وصف موجز للموضوع..." />
               </div>
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
+              <button type="submit" disabled={!form.time || !!dateError}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition">
                 إرسال طلب الحجز
               </button>
             </form>
-
-            {slots.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-slate-100">
-                <p className="font-semibold text-slate-700 mb-3">📋 مواعيد متاحة مقترحة (اضغط لاختيارها):</p>
-                <div className="flex flex-wrap gap-2">
-                  {slots.map((s) => (
-                    <button key={s.id} onClick={() => setForm({ ...form, date: s.date, time: s.time?.slice(0, 5) })}
-                      className="text-sm bg-green-50 border border-green-200 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-100">
-                      {s.date} • {s.time?.slice(0, 5)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </section>
 
           {/* My appointments */}
@@ -175,7 +235,7 @@ export default function ClientDashboard() {
                       </div>
                       <div className="flex items-center gap-4 text-sm text-slate-500">
                         <span className="flex items-center gap-1"><Calendar size={15} /> {a.date}</span>
-                        <span className="flex items-center gap-1"><Clock size={15} /> {a.time?.slice(0, 5)}</span>
+                        <span className="flex items-center gap-1"><Clock size={15} /> {fmtTime(a.time?.slice(0, 5))}</span>
                         <span>{a.price} ر.س</span>
                       </div>
                       {a.description && <p className="text-sm text-slate-500 mt-2">{a.description}</p>}
