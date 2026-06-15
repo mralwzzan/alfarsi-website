@@ -526,9 +526,11 @@ export default function AlFarsiLawOffice() {
                 </div>
               </div>
               <p className="text-sm mb-3">نقدم خدمات قانونية احترافية وموثوقة منذ سنوات.</p>
-              <div className="border-t border-brand-700 pt-3">
+              <div className="border-t border-brand-700 pt-3 space-y-1">
                 <p className="text-xs text-brand-200">المدير العام</p>
                 <p className="text-white font-bold">محمد بن أمين الوزان</p>
+                <p className="text-sm">📞 <a href="tel:0551055959" className="hover:text-white transition"><span dir="ltr">0551055959</span></a></p>
+                <p className="text-sm">📧 <a href="mailto:mr.alwzzan@gmail.com" className="hover:text-white transition">mr.alwzzan@gmail.com</a></p>
               </div>
             </div>
 
