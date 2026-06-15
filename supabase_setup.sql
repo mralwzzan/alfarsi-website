@@ -9,6 +9,7 @@ create table if not exists public.appointments (
   user_id uuid references auth.users(id) on delete cascade not null,
   client_name text not null,
   client_email text,
+  client_phone text,
   consultation_type text not null,
   price int,
   date date not null,

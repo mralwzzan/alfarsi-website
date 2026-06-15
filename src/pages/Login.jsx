@@ -8,7 +8,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { isOwner } = useAuth();
   const [mode, setMode] = useState('login'); // login | signup
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [busy, setBusy] = useState(false);
@@ -34,7 +34,7 @@ export default function Login() {
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
-          options: { data: { full_name: form.name } },
+          options: { data: { full_name: form.name, phone: form.phone } },
         });
         if (error) throw error;
         if (data.session) {
@@ -102,6 +102,19 @@ export default function Login() {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                   placeholder="محمد علي"
+                  required
+                />
+              </div>
+            )}
+            {mode === 'signup' && (
+              <div>
+                <label className="block text-slate-700 font-semibold mb-2">رقم الجوال</label>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  placeholder="05xxxxxxxx"
                   required
                 />
               </div>
