@@ -65,12 +65,8 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-gold-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="text-4xl">⚖️</div>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-slate-800">الفارس</h1>
-            <p className="text-xs text-slate-500">مكتب محاماة</p>
-          </div>
+        <Link to="/" className="flex items-center justify-center mb-8">
+          <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-20 w-auto" />
         </Link>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">

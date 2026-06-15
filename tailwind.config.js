@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Tajawal', 'system-ui', 'sans-serif'],
+        display: ['"Aref Ruqaa"', 'Tajawal', 'serif'],
       },
       colors: {
         brand: {
