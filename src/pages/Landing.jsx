@@ -88,8 +88,14 @@ export default function AlFarsiLawOffice() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section className="relative overflow-hidden pt-32 pb-20 px-4 hero-animated">
+        {/* توهّجات متحركة في الخلفية */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="hero-blob" style={{ width: '420px', height: '420px', top: '-90px', right: '-70px', background: 'radial-gradient(circle, rgba(208,166,78,0.45), transparent 70%)' }}></div>
+          <div className="hero-blob" style={{ width: '360px', height: '360px', bottom: '-110px', left: '-50px', background: 'radial-gradient(circle, rgba(162,60,67,0.6), transparent 70%)', animationDelay: '5s' }}></div>
+          <div className="hero-blob" style={{ width: '280px', height: '280px', top: '40%', left: '45%', background: 'radial-gradient(circle, rgba(194,161,96,0.3), transparent 70%)', animationDelay: '9s' }}></div>
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <div className="inline-block mb-6 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
               <p className="text-gold-300 font-semibold text-sm">✨ خدماتنا القانونية</p>
