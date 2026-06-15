@@ -26,6 +26,9 @@ export default function AlFarsiLawOffice() {
     'عامة': 500
   };
 
+  // رقم الواتساب الذي تصل إليه الرسائل (صيغة دولية بدون + أو 00)
+  const WHATSAPP_NUMBER = '966551055959';
+
   const openBookingForm = (serviceType = 'احوال شخصية') => {
     setSelectedService(serviceType);
     setBookingData({ ...bookingData, consultationType: serviceType });
@@ -39,7 +42,16 @@ export default function AlFarsiLawOffice() {
       alert('الرجاء ملء جميع الحقول المطلوبة');
       return;
     }
-    alert(`✅ تم استقبال طلبك! سيتم التواصل معك على ${bookingData.clientEmail}`);
+    const price = prices[bookingData.consultationType];
+    const text =
+      `🗓️ طلب حجز استشارة جديد\n\n` +
+      `👤 الاسم: ${bookingData.clientName}\n` +
+      `📧 البريد: ${bookingData.clientEmail || 'غير محدد'}\n` +
+      `⚖️ نوع الاستشارة: ${bookingData.consultationType} (${price} ر.س)\n` +
+      `📅 التاريخ: ${bookingData.date}\n` +
+      `⏰ الوقت: ${bookingData.time}\n` +
+      `📝 التفاصيل: ${bookingData.description || 'لا يوجد'}`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
     setBookingData({
       clientName: '',
       clientEmail: '',
@@ -53,7 +65,13 @@ export default function AlFarsiLawOffice() {
 
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    alert(`شكراً ${formData.name}! سيتم التواصل معك قريباً`);
+    const text =
+      `📩 رسالة جديدة من موقع المكتب\n\n` +
+      `👤 الاسم: ${formData.name}\n` +
+      `📧 البريد: ${formData.email}\n` +
+      `📞 الهاتف: ${formData.phone}\n` +
+      `📝 الرسالة: ${formData.message}`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
     setFormData({ name: '', email: '', phone: '', message: '' });
   };
 
