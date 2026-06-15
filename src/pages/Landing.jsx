@@ -264,7 +264,6 @@ export default function AlFarsiLawOffice() {
               <h3 className="text-2xl font-bold text-slate-800 mb-2">التوثيق</h3>
               <div className="text-4xl font-bold text-purple-600 mb-6">750 <span className="text-lg">ر.س</span></div>
               <ul className="space-y-3 mb-8 text-slate-700">
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
                 <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> توثيق نظامي موثوق</li>
                 <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> عقود ووكالات وإقرارات</li>
               </ul>
