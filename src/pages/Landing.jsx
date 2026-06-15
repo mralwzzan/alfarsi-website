@@ -44,13 +44,9 @@ export default function AlFarsiLawOffice() {
       {/* Navigation */}
       <nav className="fixed w-full top-0 bg-white shadow-sm z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">⚖️</div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">الفارس</h1>
-              <p className="text-[10px] text-slate-500 leading-tight">للمحاماة والاستشارات الشرعية والقانونية</p>
-            </div>
-          </div>
+          <a href="#" className="flex items-center">
+            <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية" className="h-12 md:h-14 w-auto" />
+          </a>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex gap-8">
@@ -98,8 +94,8 @@ export default function AlFarsiLawOffice() {
             <div className="inline-block mb-6 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
               <p className="text-gold-300 font-semibold text-sm">✨ خدماتنا القانونية</p>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              مكتب <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">الفارس</span> للمحاماة والاستشارات الشرعية والقانونية
+            <h1 className="font-display text-3xl md:text-5xl font-bold text-white mb-6 leading-relaxed">
+              مكتب <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">ساير بن فارس المطيري</span> للمحاماة والاستشارات الشرعية والقانونية
             </h1>
             <p className="text-xl text-brand-100 mb-8 leading-relaxed">
               نقدم استشارات قانونية متخصصة في المجالات العائلية والتجارية والعامة بخبرة واحترافية عالية. فريقنا مجهز لحماية حقوقك بأفضل الطرق القانونية.
@@ -119,8 +115,8 @@ export default function AlFarsiLawOffice() {
 
           <div className="relative">
             <div className="bg-gradient-to-br from-gold-400 to-brand-600 rounded-3xl p-1 shadow-2xl">
-              <div className="bg-white rounded-3xl p-12 text-center">
-                <div className="text-8xl mb-6">⚖️</div>
+              <div className="bg-white rounded-3xl p-10 text-center">
+                <img src="/logo.jpeg" alt="شعار المكتب" className="w-full max-w-xs mx-auto mb-6" />
                 <h3 className="text-2xl font-bold text-slate-800 mb-3">استشارات قانونية احترافية</h3>
                 <p className="text-slate-600 mb-8">حماية حقوقك هي أولويتنا الأولى</p>
                 <div className="space-y-3 text-left">
@@ -147,7 +143,7 @@ export default function AlFarsiLawOffice() {
       <section id="services" className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-slate-800 mb-4">خدماتنا</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-4">خدماتنا</h2>
             <p className="text-xl text-slate-600">نقدم مجموعة شاملة من الخدمات القانونية المتخصصة</p>
           </div>
 
@@ -211,7 +207,7 @@ export default function AlFarsiLawOffice() {
       <section id="prices" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-slate-800 mb-4">أسعار الاستشارات</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-4">أسعار الاستشارات</h2>
             <p className="text-xl text-slate-600">أسعار واضحة وشفافة بدون رسوم مخفية</p>
           </div>
 
@@ -279,9 +275,9 @@ export default function AlFarsiLawOffice() {
       <section id="about" className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-5xl font-bold text-slate-800 mb-6">عن مكتب الفارس</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-6">عن المكتب</h2>
             <p className="text-lg text-slate-700 mb-6 leading-relaxed">
-              مكتب الفارس للمحاماة يتمتع بسمعة عريقة في تقديم الخدمات القانونية الاحترافية والموثوقة. فريقنا المتخصص يعمل بكل جدية لحماية حقوق عملائنا.
+              مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية يتمتع بسمعة عريقة في تقديم الخدمات القانونية الاحترافية والموثوقة. فريقنا المتخصص يعمل بكل جدية لحماية حقوق عملائنا.
             </p>
             <p className="text-lg text-slate-700 mb-8 leading-relaxed">
               نؤمن أن العدالة حق لكل شخص، ونلتزم بتقديم أفضل الخدمات بأسعار منصفة وشفافة. خبرتنا تمتد لسنوات في المجالات العائلية والتجارية والقانونية العامة.
@@ -337,7 +333,7 @@ export default function AlFarsiLawOffice() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-5xl font-bold text-slate-800 mb-8">تواصل معنا</h2>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-8">تواصل معنا</h2>
               
               <div className="space-y-6 mb-8">
                 <div className="flex items-start gap-4">
@@ -448,7 +444,7 @@ export default function AlFarsiLawOffice() {
       {/* App CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-brand-600 to-brand-700 text-white">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-5xl font-bold mb-6">احجز استشارتك الآن</h2>
+          <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">احجز استشارتك الآن</h2>
           <p className="text-xl text-brand-100 mb-8 max-w-2xl mx-auto">
             استخدم نموذج الحجز البسيط والسريع. اختر الخدمة التي تحتاجها والوقت المناسب لك.
           </p>
@@ -466,11 +462,9 @@ export default function AlFarsiLawOffice() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="text-3xl">⚖️</div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">الفارس</h3>
-                  <p className="text-xs">للمحاماة والاستشارات الشرعية والقانونية</p>
+              <div className="mb-4">
+                <div className="bg-white rounded-xl p-3 inline-block">
+                  <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-14 w-auto" />
                 </div>
               </div>
               <p className="text-sm">نقدم خدمات قانونية احترافية وموثوقة منذ سنوات.</p>
@@ -498,7 +492,7 @@ export default function AlFarsiLawOffice() {
           </div>
 
           <div className="border-t border-slate-700 pt-8 text-center text-sm">
-            <p>&copy; 2024 مكتب الفارس للمحاماة. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2026 مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية. جميع الحقوق محفوظة.</p>
             <p className="mt-2">تم بناء الموقع بكل احترافية لتقديم أفضل تجربة</p>
           </div>
         </div>
