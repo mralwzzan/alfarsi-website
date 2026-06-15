@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone } from 'lucide-react';
+import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone, CreditCard } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -37,6 +37,12 @@ export default function OwnerDashboard() {
   const setStatus = async (id, status) => {
     await supabase.from('appointments').update({ status }).eq('id', id);
     setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+  };
+
+  const togglePaid = async (id, current) => {
+    const payment_status = current === 'paid' ? 'unpaid' : 'paid';
+    await supabase.from('appointments').update({ payment_status }).eq('id', id);
+    setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, payment_status } : a)));
   };
 
   const addSlot = async (e) => {
@@ -143,6 +149,15 @@ export default function OwnerDashboard() {
                           <span className="flex items-center gap-1"><Clock size={15} /> {a.time?.slice(0, 5)}</span>
                         </p>
                         {a.description && <p className="text-slate-500 pt-1">📝 {a.description}</p>}
+                        <p className="flex items-center gap-2 pt-1">
+                          <CreditCard size={15} />
+                          <span>{a.price} ر.س</span>
+                          {a.payment_status === 'paid' ? (
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">مدفوع ✓</span>
+                          ) : (
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">غير مدفوع</span>
+                          )}
+                        </p>
                       </div>
                       {a.status !== 'approved' && (
                         <button onClick={() => setStatus(a.id, 'approved')}
@@ -156,6 +171,10 @@ export default function OwnerDashboard() {
                           <X size={16} /> رفض
                         </button>
                       )}
+                      <button onClick={() => togglePaid(a.id, a.payment_status)}
+                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1">
+                        <CreditCard size={16} /> {a.payment_status === 'paid' ? 'إلغاء الدفع' : 'تعليم كمدفوع'}
+                      </button>
                     </div>
                   );
                 })}

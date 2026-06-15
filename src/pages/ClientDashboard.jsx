@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, Calendar, Clock, Plus } from 'lucide-react';
+import { LogOut, Calendar, Clock, Plus, CreditCard } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -96,6 +96,11 @@ export default function ClientDashboard() {
     }
     setDateError('');
     fetchBooked(value);
+  };
+
+  // الدفع الإلكتروني (Apple Pay) قيد التفعيل — واجهة جاهزة الآن
+  const payNow = () => {
+    alert('💳 الدفع الإلكتروني (Apple Pay ومدى والبطاقات) قيد التفعيل وسيتوفّر قريباً.\nيمكنك حالياً الدفع في المكتب أو عبر التحويل.');
   };
 
   const book = async (e) => {
@@ -265,6 +270,19 @@ export default function ClientDashboard() {
                         <span>{a.price} ر.س</span>
                       </div>
                       {a.description && <p className="text-sm text-slate-500 mt-2">{a.description}</p>}
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                        {a.payment_status === 'paid' ? (
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700">مدفوع ✓</span>
+                        ) : (
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">غير مدفوع</span>
+                        )}
+                        {a.payment_status !== 'paid' && (
+                          <button onClick={payNow}
+                            className="bg-slate-900 hover:bg-black text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-2">
+                            <CreditCard size={16} /> ادفع الآن
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
