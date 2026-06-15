@@ -25,7 +25,7 @@ const dayAllowed = (dateStr, type) => {
 };
 
 const STATUS = {
-  pending: { label: 'قيد المراجعة', cls: 'bg-amber-100 text-amber-700' },
+  pending: { label: 'قيد المراجعة', cls: 'bg-gold-100 text-gold-700' },
   approved: { label: 'تمت الموافقة ✓', cls: 'bg-green-100 text-green-700' },
   rejected: { label: 'مرفوض', cls: 'bg-red-100 text-red-700' },
 };
@@ -209,21 +209,21 @@ export default function ClientDashboard() {
           {/* Booking form */}
           <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
-              <Plus size={22} className="text-blue-600" /> حجز استشارة جديدة
+              <Plus size={22} className="text-brand-600" /> حجز استشارة جديدة
             </h2>
             <p className="text-slate-400 text-sm mb-4">
               {isDoc(form.type)
                 ? '🕗 التوثيق: متاح كل أيام الأسبوع، 8 صباحاً – 12 منتصف الليل'
                 : '🕘 أوقات العمل: الأحد – الخميس، 9 صباحاً – 5 مساءً'}
             </p>
-            {msg && <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-4 text-sm">{msg}</div>}
+            {msg && <div className="bg-brand-50 border border-brand-200 text-brand-800 px-4 py-3 rounded-lg mb-4 text-sm">{msg}</div>}
             <form onSubmit={book} className="space-y-4">
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">نوع الاستشارة</label>
                 <select
                   value={form.type}
                   onChange={(e) => validate(form.date, e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500"
                 >
                   <option value="احوال شخصية">احوال شخصية - 300 ر.س</option>
                   <option value="تجارية">تجارية - 750 ر.س</option>
@@ -234,24 +234,24 @@ export default function ClientDashboard() {
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">رقم الجوال</label>
                 <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500"
                   placeholder="05xxxxxxxx" required />
               </div>
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
                 <div className="grid grid-cols-3 gap-2">
                   <select value={dp.y} onChange={(e) => onDatePart('y', e.target.value)}
-                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-blue-500">
+                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-brand-500">
                     <option value="">السنة</option>
                     {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
                   </select>
                   <select value={dp.m} onChange={(e) => onDatePart('m', e.target.value)}
-                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-blue-500">
+                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-brand-500">
                     <option value="">الشهر</option>
                     {MONTHS.map((name, i) => <option key={i} value={i + 1}>{name}</option>)}
                   </select>
                   <select value={dp.d} onChange={(e) => onDatePart('d', e.target.value)}
-                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-blue-500">
+                    className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-brand-500">
                     <option value="">اليوم</option>
                     {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
                       let closed = false;
@@ -287,8 +287,8 @@ export default function ClientDashboard() {
                             taken
                               ? 'bg-slate-100 text-slate-300 border-slate-200 line-through cursor-not-allowed'
                               : selected
-                              ? 'bg-blue-600 text-white border-blue-600'
-                              : 'bg-white text-slate-700 border-slate-300 hover:border-blue-400'
+                              ? 'bg-brand-600 text-white border-brand-600'
+                              : 'bg-white text-slate-700 border-slate-300 hover:border-brand-400'
                           }`}
                         >
                           {fmtTime(h)}
@@ -302,11 +302,11 @@ export default function ClientDashboard() {
               <div>
                 <label className="block text-slate-700 font-semibold mb-2">تفاصيل (اختياري)</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 h-20 resize-none"
+                  className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 h-20 resize-none"
                   placeholder="وصف موجز للموضوع..." />
               </div>
               <button type="submit" disabled={!form.time || !!dateError}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition">
+                className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition">
                 إرسال طلب الحجز
               </button>
             </form>
@@ -315,7 +315,7 @@ export default function ClientDashboard() {
           {/* My appointments */}
           <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <Calendar size={22} className="text-blue-600" /> حجوزاتي
+              <Calendar size={22} className="text-brand-600" /> حجوزاتي
             </h2>
             {loading ? (
               <p className="text-slate-400">جارٍ التحميل...</p>

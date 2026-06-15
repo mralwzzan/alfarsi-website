@@ -63,7 +63,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-gold-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-3 mb-8">
           <div className="text-4xl">⚖️</div>
@@ -77,13 +77,13 @@ export default function Login() {
           <div className="flex bg-slate-100 rounded-xl p-1 mb-6">
             <button
               onClick={() => { setMode('login'); setError(''); setInfo(''); }}
-              className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'login' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+              className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'login' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
             >
               تسجيل الدخول
             </button>
             <button
               onClick={() => { setMode('signup'); setError(''); setInfo(''); }}
-              className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'signup' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+              className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'signup' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
             >
               حساب جديد
             </button>
@@ -100,7 +100,7 @@ export default function Login() {
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
                   placeholder="محمد علي"
                   required
                 />
@@ -113,7 +113,7 @@ export default function Login() {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
                   placeholder="05xxxxxxxx"
                   required
                 />
@@ -125,7 +125,7 @@ export default function Login() {
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
                 placeholder="example@email.com"
                 required
               />
@@ -136,7 +136,7 @@ export default function Login() {
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
                 placeholder="••••••••"
                 required
               />
@@ -145,7 +145,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2"
+              className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2"
             >
               {busy ? 'جارٍ المعالجة...' : mode === 'login' ? 'دخول' : 'إنشاء الحساب'}
               {!busy && <ArrowRight size={20} />}
@@ -153,7 +153,7 @@ export default function Login() {
           </form>
         </div>
 
-        <Link to="/" className="block text-center text-slate-500 hover:text-blue-600 mt-6 font-semibold">
+        <Link to="/" className="block text-center text-slate-500 hover:text-brand-600 mt-6 font-semibold">
           ← العودة للموقع
         </Link>
       </div>

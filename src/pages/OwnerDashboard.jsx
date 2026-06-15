@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
 const STATUS = {
-  pending: { label: 'قيد المراجعة', cls: 'bg-amber-100 text-amber-700' },
+  pending: { label: 'قيد المراجعة', cls: 'bg-gold-100 text-gold-700' },
   approved: { label: 'تمت الموافقة', cls: 'bg-green-100 text-green-700' },
   rejected: { label: 'مرفوض', cls: 'bg-red-100 text-red-700' },
 };
@@ -86,11 +86,11 @@ export default function OwnerDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
-            <div className="text-3xl font-bold text-blue-600">{counts.all}</div>
+            <div className="text-3xl font-bold text-brand-600">{counts.all}</div>
             <p className="text-slate-500 text-sm mt-1">إجمالي الحجوزات</p>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
-            <div className="text-3xl font-bold text-amber-600">{counts.pending}</div>
+            <div className="text-3xl font-bold text-gold-600">{counts.pending}</div>
             <p className="text-slate-500 text-sm mt-1">بانتظار الموافقة</p>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
@@ -107,7 +107,7 @@ export default function OwnerDashboard() {
               <div className="flex bg-slate-100 rounded-lg p-1 text-sm">
                 {[['all', 'الكل'], ['pending', 'قيد المراجعة'], ['approved', 'مؤكّدة']].map(([k, l]) => (
                   <button key={k} onClick={() => setFilter(k)}
-                    className={`px-3 py-1.5 rounded-md font-semibold transition ${filter === k ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}>
+                    className={`px-3 py-1.5 rounded-md font-semibold transition ${filter === k ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}>
                     {l}
                   </button>
                 ))}
@@ -137,7 +137,7 @@ export default function OwnerDashboard() {
                         {a.client_phone && (
                           <p className="flex items-center gap-2">
                             <Phone size={15} />
-                            <a href={`tel:${a.client_phone}`} className="text-blue-600 hover:underline">{a.client_phone}</a>
+                            <a href={`tel:${a.client_phone}`} className="text-brand-600 hover:underline">{a.client_phone}</a>
                             <a href={`https://wa.me/${a.client_phone.replace(/[^0-9]/g, '').replace(/^0/, '966')}`}
                               target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline text-xs">
                               (واتساب)
@@ -187,10 +187,10 @@ export default function OwnerDashboard() {
             <h2 className="text-xl font-bold text-slate-800 mb-4">المواعيد المتاحة</h2>
             <form onSubmit={addSlot} className="space-y-3 mb-5">
               <input type="date" value={newSlot.date} onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500" required />
+                className="w-full bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" required />
               <input type="time" value={newSlot.time} onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500" required />
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl inline-flex items-center justify-center gap-1">
+                className="w-full bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" required />
+              <button type="submit" className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl inline-flex items-center justify-center gap-1">
                 <Plus size={18} /> إضافة موعد متاح
               </button>
             </form>
