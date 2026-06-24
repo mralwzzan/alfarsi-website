@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { LogOut, Calendar, Clock, Plus, CreditCard, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { isPaymentConfigured } from '../lib/payment';
+import PaymentModal from '../components/PaymentModal';
 
 const PRICES = { 'احوال شخصية': 300, 'تجارية': 750, 'عامة': 500, 'التوثيق': 750, 'عمالية': 500 };
 
@@ -55,6 +57,7 @@ export default function ClientDashboard() {
   });
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(null); // الحجز الجاري دفعه (يفتح نافذة الدفع)
 
   const clientName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'عميلنا';
   const today = new Date().toISOString().split('T')[0];
@@ -98,6 +101,25 @@ export default function ClientDashboard() {
       setForm((f) => ({ ...f, type: sel }));
     }
     load();
+
+    // العودة من بوابة Moyasar: التحقق من الدفع وتحديث الحالة
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get('id');
+    if (pid) {
+      window.history.replaceState({}, '', '/dashboard');
+      setMsg('⏳ جارٍ التحقق من الدفع...');
+      fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payment_id: pid }),
+      })
+        .then((r) => r.json())
+        .then((res) => {
+          setMsg(res.paid ? '✅ تم الدفع بنجاح! شكراً لك.' : '⚠️ لم يكتمل الدفع، يرجى المحاولة مرة أخرى.');
+          load();
+        })
+        .catch(() => setMsg('تعذّر التحقق من الدفع، يرجى التواصل معنا.'));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -142,9 +164,13 @@ export default function ClientDashboard() {
     if (form.date === a.date) fetchBooked(a.date);
   };
 
-  // الدفع الإلكتروني (Apple Pay) قيد التفعيل — واجهة جاهزة الآن
-  const payNow = () => {
-    alert('💳 الدفع الإلكتروني (Apple Pay ومدى والبطاقات) قيد التفعيل وسيتوفّر قريباً.\nيمكنك حالياً الدفع في المكتب أو عبر التحويل.');
+  // فتح نافذة الدفع لحجزٍ تمت الموافقة عليه
+  const payNow = (a) => {
+    if (!isPaymentConfigured) {
+      alert('💳 الدفع الإلكتروني قيد الإعداد النهائي وسيتوفّر قريباً.\nيمكنك حالياً الدفع في المكتب أو عبر التحويل.');
+      return;
+    }
+    setPaying(a);
   };
 
   const book = async (e) => {
@@ -340,15 +366,20 @@ export default function ClientDashboard() {
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                         {a.payment_status === 'paid' ? (
                           <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700">مدفوع ✓</span>
+                        ) : a.status === 'approved' ? (
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gold-100 text-gold-700">بانتظار الدفع</span>
                         ) : (
                           <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">غير مدفوع</span>
                         )}
                         <div className="flex gap-2">
-                          {a.payment_status !== 'paid' && (
-                            <button onClick={payNow}
+                          {a.payment_status !== 'paid' && a.status === 'approved' && (
+                            <button onClick={() => payNow(a)}
                               className="bg-slate-900 hover:bg-black text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-2">
                               <CreditCard size={16} /> ادفع الآن
                             </button>
+                          )}
+                          {a.payment_status !== 'paid' && a.status === 'pending' && (
+                            <span className="text-xs text-slate-400 self-center">الدفع يُتاح بعد الموافقة</span>
                           )}
                           <button onClick={() => cancelBooking(a)}
                             className="bg-slate-100 hover:bg-red-100 text-red-600 text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1">
@@ -364,6 +395,8 @@ export default function ClientDashboard() {
           </section>
         </div>
       </main>
+
+      {paying && <PaymentModal appointment={paying} onClose={() => setPaying(null)} />}
     </div>
   );
 }
