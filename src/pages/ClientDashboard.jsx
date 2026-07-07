@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { LogOut, Calendar, Clock, Plus, CreditCard, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
 import { isPaymentConfigured } from '../lib/payment';
 import PaymentModal from '../components/PaymentModal';
+import LanguageToggle from '../components/LanguageToggle';
 
 const PRICES = { 'احوال شخصية': 300, 'تجارية': 750, 'عامة': 500, 'التوثيق': 750, 'عمالية': 500 };
 
@@ -26,25 +28,24 @@ const dayAllowed = (dateStr, type) => {
   return day !== 5 && day !== 6;
 };
 
-const STATUS = {
-  pending: { label: 'قيد المراجعة', cls: 'bg-gold-100 text-gold-700' },
-  approved: { label: 'تمت الموافقة ✓', cls: 'bg-green-100 text-green-700' },
-  rejected: { label: 'مرفوض', cls: 'bg-red-100 text-red-700' },
+const STATUS_CLS = {
+  pending: 'bg-gold-100 text-gold-700',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
 };
-
-// تنسيق الوقت لعرض ودّي (مثال: 1:00 م)
-const fmtTime = (hhmm) => {
-  const [h] = hhmm.split(':').map(Number);
-  const period = h >= 12 ? 'م' : 'ص';
-  const h12 = h % 12 === 0 ? 12 : h % 12;
-  return `${h12}:00 ${period}`;
-};
-
-// أشهر السنة بالعربية لاختيار التاريخ
-const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
 export default function ClientDashboard() {
   const { user, signOut } = useAuth();
+  const { t } = useLang();
+  const MONTHS = t('client.months');
+  const typeLabel = (ar) => t('types')[ar] || ar;
+  // تنسيق الوقت لعرض ودّي (مثال: 1:00 م / 1:00 PM)
+  const fmtTime = (hhmm) => {
+    const [h] = hhmm.split(':').map(Number);
+    const period = h >= 12 ? t('client.pm') : t('client.am');
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:00 ${period}`;
+  };
   const [appointments, setAppointments] = useState([]);
   const [bookedTimes, setBookedTimes] = useState([]); // الأوقات المحجوزة في التاريخ المختار
   const [dateError, setDateError] = useState('');
@@ -59,7 +60,7 @@ export default function ClientDashboard() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(null); // الحجز الجاري دفعه (يفتح نافذة الدفع)
 
-  const clientName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'عميلنا';
+  const clientName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || t('client.defaultName');
   const today = new Date().toISOString().split('T')[0];
 
   // أجزاء التاريخ المختار (سنة/شهر/يوم) عبر قوائم منسدلة بالعربي
@@ -107,7 +108,7 @@ export default function ClientDashboard() {
     const pid = params.get('id');
     if (pid) {
       window.history.replaceState({}, '', '/dashboard');
-      setMsg('⏳ جارٍ التحقق من الدفع...');
+      setMsg(t('payment.verifying'));
       fetch('/api/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -115,10 +116,10 @@ export default function ClientDashboard() {
       })
         .then((r) => r.json())
         .then((res) => {
-          setMsg(res.paid ? '✅ تم الدفع بنجاح! شكراً لك.' : '⚠️ لم يكتمل الدفع، يرجى المحاولة مرة أخرى.');
+          setMsg(res.paid ? t('payment.success') : t('payment.incomplete'));
           load();
         })
-        .catch(() => setMsg('تعذّر التحقق من الدفع، يرجى التواصل معنا.'));
+        .catch(() => setMsg(t('payment.verifyFail')));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -139,12 +140,12 @@ export default function ClientDashboard() {
       return;
     }
     if (value < today) {
-      setDateError('لا يمكن اختيار تاريخ ماضٍ.');
+      setDateError(t('client.errPast'));
       setBookedTimes([]);
       return;
     }
     if (!dayAllowed(value, type)) {
-      setDateError('عذراً، أوقات العمل لهذه الخدمة من الأحد إلى الخميس فقط.');
+      setDateError(t('client.errClosed'));
       setBookedTimes([]);
       return;
     }
@@ -154,10 +155,10 @@ export default function ClientDashboard() {
 
   // إلغاء حجز العميل — يحرّر الموعد ليصبح متاحاً من جديد
   const cancelBooking = async (a) => {
-    if (!window.confirm('هل أنت متأكد من إلغاء هذا الحجز؟')) return;
+    if (!window.confirm(t('client.cancelConfirm'))) return;
     const { error } = await supabase.from('appointments').delete().eq('id', a.id);
     if (error) {
-      alert('تعذّر الإلغاء: ' + error.message);
+      alert(t('client.cancelFail') + error.message);
       return;
     }
     setAppointments((prev) => prev.filter((x) => x.id !== a.id));
@@ -167,7 +168,7 @@ export default function ClientDashboard() {
   // فتح نافذة الدفع لحجزٍ تمت الموافقة عليه
   const payNow = (a) => {
     if (!isPaymentConfigured) {
-      alert('💳 الدفع الإلكتروني قيد الإعداد النهائي وسيتوفّر قريباً.\nيمكنك حالياً الدفع في المكتب أو عبر التحويل.');
+      alert(t('payment.notConfigured'));
       return;
     }
     setPaying(a);
@@ -177,11 +178,11 @@ export default function ClientDashboard() {
     e.preventDefault();
     setMsg('');
     if (dateError) {
-      setMsg('⚠️ ' + dateError);
+      setMsg(t('client.errPrefix') + dateError);
       return;
     }
     if (!form.date || !form.time) {
-      setMsg('⚠️ الرجاء اختيار التاريخ والوقت.');
+      setMsg(t('client.errPickDateTime'));
       return;
     }
     const { error } = await supabase.from('appointments').insert({
@@ -198,14 +199,14 @@ export default function ClientDashboard() {
     });
     if (error) {
       if (error.code === '23505') {
-        setMsg('⚠️ عذراً، هذا الموعد حُجز للتو. اختر وقتاً آخر.');
+        setMsg(t('client.errTaken'));
         fetchBooked(form.date);
       } else {
-        setMsg('حدث خطأ: ' + error.message);
+        setMsg(t('client.errGeneric') + error.message);
       }
       return;
     }
-    setMsg('✅ تم إرسال طلب الحجز! سيصلك إشعار بالموافقة قريباً.');
+    setMsg(t('client.bookSuccess'));
     fetchBooked(form.date);
     setForm({ type: 'احوال شخصية', phone: form.phone, date: '', time: '', description: '' });
     setDp({ y: '', m: '', d: '' });
@@ -218,74 +219,73 @@ export default function ClientDashboard() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-11 w-auto" />
+            <img src="/logo.jpeg" alt={t('hero.logoAlt')} className="h-11 w-auto" />
           </Link>
-          <button onClick={signOut} className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-semibold">
-            <LogOut size={20} /> خروج
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageToggle className="border-slate-300 text-slate-600 hover:border-brand-400 hover:text-brand-600" />
+            <button onClick={signOut} className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-semibold">
+              <LogOut size={20} /> {t('client.signout')}
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-slate-800 mb-1">أهلاً، {clientName} 👋</h1>
-        <p className="text-slate-500 mb-8">من هنا تحجز استشاراتك وتتابع حالتها.</p>
+        <h1 className="text-3xl font-bold text-slate-800 mb-1">{t('client.hello')} {clientName} 👋</h1>
+        <p className="text-slate-500 mb-8">{t('client.subtitle')}</p>
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Booking form */}
           <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
-              <Plus size={22} className="text-brand-600" /> حجز استشارة جديدة
+              <Plus size={22} className="text-brand-600" /> {t('client.newBooking')}
             </h2>
             <p className="text-slate-400 text-sm mb-4">
-              {isDoc(form.type)
-                ? '🕗 التوثيق: متاح كل أيام الأسبوع، 8 صباحاً – 12 منتصف الليل'
-                : '🕘 أوقات العمل: الأحد – الخميس، 9 صباحاً – 5 مساءً'}
+              {isDoc(form.type) ? t('client.docHint') : t('client.workHint')}
             </p>
             {msg && <div className="bg-brand-50 border border-brand-200 text-brand-800 px-4 py-3 rounded-lg mb-4 text-sm">{msg}</div>}
             <form onSubmit={book} className="space-y-4">
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">نوع الاستشارة</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('client.typeLabel')}</label>
                 <select
                   value={form.type}
                   onChange={(e) => validate(form.date, e.target.value)}
                   className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500"
                 >
-                  <option value="احوال شخصية">احوال شخصية - 300 ر.س</option>
-                  <option value="تجارية">تجارية - 750 ر.س</option>
-                  <option value="عامة">عامة - 500 ر.س</option>
-                  <option value="عمالية">عمالية - 500 ر.س</option>
-                  <option value="التوثيق">التوثيق - 750 ر.س</option>
+                  {['احوال شخصية', 'تجارية', 'عامة', 'عمالية', 'التوثيق'].map((k) => (
+                    <option key={k} value={k}>{typeLabel(k)}{t('client.priceSep')}{PRICES[k]} {t('prices.currency')}</option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">رقم الجوال</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('client.phoneLabel')}</label>
                 <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500"
                   placeholder="05xxxxxxxx" required />
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">التاريخ</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('client.dateLabel')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   <select value={dp.y} onChange={(e) => onDatePart('y', e.target.value)}
                     className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-brand-500">
-                    <option value="">السنة</option>
+                    <option value="">{t('client.year')}</option>
                     {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
                   </select>
                   <select value={dp.m} onChange={(e) => onDatePart('m', e.target.value)}
                     className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-brand-500">
-                    <option value="">الشهر</option>
+                    <option value="">{t('client.month')}</option>
                     {MONTHS.map((name, i) => <option key={i} value={i + 1}>{name}</option>)}
                   </select>
                   <select value={dp.d} onChange={(e) => onDatePart('d', e.target.value)}
                     className="bg-slate-50 border border-slate-300 px-3 py-3 rounded-xl focus:outline-none focus:border-brand-500">
-                    <option value="">اليوم</option>
+                    <option value="">{t('client.day')}</option>
                     {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
                       let closed = false;
                       if (dp.y && dp.m && !isDoc(form.type)) {
                         const wd = new Date(Number(dp.y), Number(dp.m) - 1, d).getDay();
                         closed = wd === 5 || wd === 6; // الجمعة / السبت
                       }
-                      return <option key={d} value={d} disabled={closed}>{d}{closed ? ' (مغلق)' : ''}</option>;
+                      return <option key={d} value={d} disabled={closed}>{d}{closed ? t('client.closed') : ''}</option>;
                     })}
                   </select>
                 </div>
@@ -293,10 +293,10 @@ export default function ClientDashboard() {
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">الوقت المتاح</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('client.timeLabel')}</label>
                 {!form.date || dateError ? (
                   <p className="text-slate-400 text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                    اختر تاريخاً (الأحد – الخميس) لعرض الأوقات المتاحة.
+                    {t('client.pickDateHint')}
                   </p>
                 ) : (
                   <div className="grid grid-cols-4 gap-2">
@@ -326,14 +326,14 @@ export default function ClientDashboard() {
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">تفاصيل (اختياري)</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('client.detailsLabel')}</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 h-20 resize-none"
-                  placeholder="وصف موجز للموضوع..." />
+                  placeholder={t('client.detailsPh')} />
               </div>
               <button type="submit" disabled={!form.time || !!dateError}
                 className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition">
-                إرسال طلب الحجز
+                {t('client.submit')}
               </button>
             </form>
           </section>
@@ -341,49 +341,49 @@ export default function ClientDashboard() {
           {/* My appointments */}
           <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <Calendar size={22} className="text-brand-600" /> حجوزاتي
+              <Calendar size={22} className="text-brand-600" /> {t('client.myBookings')}
             </h2>
             {loading ? (
-              <p className="text-slate-400">جارٍ التحميل...</p>
+              <p className="text-slate-400">{t('client.loading')}</p>
             ) : appointments.length === 0 ? (
-              <p className="text-slate-400 text-center py-8">لا توجد حجوزات بعد.</p>
+              <p className="text-slate-400 text-center py-8">{t('client.noBookings')}</p>
             ) : (
               <div className="space-y-3">
                 {appointments.map((a) => {
-                  const st = STATUS[a.status] || STATUS.pending;
+                  const cls = STATUS_CLS[a.status] || STATUS_CLS.pending;
                   return (
                     <div key={a.id} className="border border-slate-200 rounded-xl p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-bold text-slate-800">{a.consultation_type}</span>
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${st.cls}`}>{st.label}</span>
+                        <span className="font-bold text-slate-800">{typeLabel(a.consultation_type)}</span>
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${cls}`}>{t('status.' + a.status)}</span>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-slate-500">
                         <span className="flex items-center gap-1"><Calendar size={15} /> {a.date}</span>
                         <span className="flex items-center gap-1"><Clock size={15} /> {fmtTime(a.time?.slice(0, 5))}</span>
-                        <span>{a.price} ر.س</span>
+                        <span>{a.price} {t('prices.currency')}</span>
                       </div>
                       {a.description && <p className="text-sm text-slate-500 mt-2">{a.description}</p>}
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                         {a.payment_status === 'paid' ? (
-                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700">مدفوع ✓</span>
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700">{t('client.paid')}</span>
                         ) : a.status === 'approved' ? (
-                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gold-100 text-gold-700">بانتظار الدفع</span>
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gold-100 text-gold-700">{t('client.awaitingPay')}</span>
                         ) : (
-                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">غير مدفوع</span>
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">{t('client.unpaid')}</span>
                         )}
                         <div className="flex gap-2">
                           {a.payment_status !== 'paid' && a.status === 'approved' && (
                             <button onClick={() => payNow(a)}
                               className="bg-slate-900 hover:bg-black text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-2">
-                              <CreditCard size={16} /> ادفع الآن
+                              <CreditCard size={16} /> {t('client.payNow')}
                             </button>
                           )}
                           {a.payment_status !== 'paid' && a.status === 'pending' && (
-                            <span className="text-xs text-slate-400 self-center">الدفع يُتاح بعد الموافقة</span>
+                            <span className="text-xs text-slate-400 self-center">{t('client.payAfter')}</span>
                           )}
                           <button onClick={() => cancelBooking(a)}
                             className="bg-slate-100 hover:bg-red-100 text-red-600 text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1">
-                            <Trash2 size={16} /> إلغاء
+                            <Trash2 size={16} /> {t('client.cancel')}
                           </button>
                         </div>
                       </div>

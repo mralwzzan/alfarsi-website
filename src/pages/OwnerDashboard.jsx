@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone, CreditCard, MessageCircle, Bell } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
+import LanguageToggle from '../components/LanguageToggle';
 
-const STATUS = {
-  pending: { label: 'قيد المراجعة', cls: 'bg-gold-100 text-gold-700' },
-  approved: { label: 'تمت الموافقة', cls: 'bg-green-100 text-green-700' },
-  rejected: { label: 'مرفوض', cls: 'bg-red-100 text-red-700' },
+const STATUS_CLS = {
+  pending: 'bg-gold-100 text-gold-700',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
 };
 
 // تنبيه صوتي قصير عند وصول طلب جديد
@@ -29,6 +31,8 @@ const playBeep = () => {
 
 export default function OwnerDashboard() {
   const { signOut } = useAuth();
+  const { t } = useLang();
+  const typeLabel = (ar) => t('types')[ar] || ar;
   const [appointments, setAppointments] = useState([]);
   const [slots, setSlots] = useState([]);
   const [newSlot, setNewSlot] = useState({ date: '', time: '' });
@@ -61,11 +65,12 @@ export default function OwnerDashboard() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, (payload) => {
         const a = payload.new;
         setAppointments((prev) => (prev.some((x) => x.id === a.id) ? prev : [a, ...prev]));
-        setToast(`🔔 طلب حجز جديد من ${a.client_name || 'عميل'} — ${a.consultation_type || ''}`);
+        const who = a.client_name || t('client.defaultName');
+        setToast(`🔔 ${t('owner.toastA')}${who} — ${typeLabel(a.consultation_type)}`);
         playBeep();
         try {
           if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-            new Notification('🔔 طلب حجز جديد', { body: `${a.client_name || 'عميل'} — ${a.consultation_type || ''}` });
+            new Notification(t('owner.notifTitle'), { body: `${who} — ${typeLabel(a.consultation_type)}` });
           }
         } catch (e) { /* تجاهل */ }
         setTimeout(() => setToast(''), 9000);
@@ -85,18 +90,18 @@ export default function OwnerDashboard() {
   const sendWhatsAppConfirm = (a) => {
     const phone = (a.client_phone || '').replace(/[^0-9]/g, '').replace(/^0/, '966');
     if (!phone) {
-      alert('لا يوجد رقم جوال لهذا العميل لإرسال التأكيد.');
+      alert(t('owner.noPhone'));
       return;
     }
     const text =
-      `مرحباً ${a.client_name} 👋\n` +
-      `تم تأكيد موعد استشارتك في مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية ✅\n\n` +
-      `📋 نوع الاستشارة: ${a.consultation_type}\n` +
-      `📅 التاريخ: ${a.date}\n` +
-      `⏰ الوقت: ${a.time?.slice(0, 5)}\n` +
-      `💳 القيمة: ${a.price} ر.س\n\n` +
-      `يسعدنا خدمتك ونعتزّ بثقتك بنا. لأي استفسار نحن في خدمتك دائماً.\n` +
-      `مع تحيات فريق مكتب ساير بن فارس المطيري ⚖️`;
+      `${t('owner.waHello')}${a.client_name} 👋\n` +
+      `${t('owner.waConfirmed')}\n\n` +
+      `📋 ${t('owner.waType')}: ${typeLabel(a.consultation_type)}\n` +
+      `📅 ${t('owner.waDate')}: ${a.date}\n` +
+      `⏰ ${t('owner.waTime')}: ${a.time?.slice(0, 5)}\n` +
+      `💳 ${t('owner.waValue')}: ${a.price} ${t('prices.currency')}\n\n` +
+      `${t('owner.waThanks')}\n` +
+      `${t('owner.waRegards')}`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -161,11 +166,12 @@ export default function OwnerDashboard() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-11 w-auto" />
-            <span className="font-bold text-slate-800 hidden sm:inline">لوحة الإدارة</span>
+            <img src="/logo.jpeg" alt={t('hero.logoAlt')} className="h-11 w-auto" />
+            <span className="font-bold text-slate-800 hidden sm:inline">{t('owner.panelTitle')}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <button onClick={() => setFilter('pending')} className="relative" title="الطلبات المعلّقة">
+            <LanguageToggle className="border-slate-300 text-slate-600 hover:border-brand-400 hover:text-brand-600" />
+            <button onClick={() => setFilter('pending')} className="relative" title={t('owner.pendingAttr')}>
               <Bell size={24} className="text-slate-600" />
               {counts.pending > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -174,7 +180,7 @@ export default function OwnerDashboard() {
               )}
             </button>
             <button onClick={signOut} className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-semibold">
-            <LogOut size={20} /> خروج
+            <LogOut size={20} /> {t('owner.signout')}
           </button>
           </div>
         </div>
@@ -186,10 +192,10 @@ export default function OwnerDashboard() {
           <div className="mb-6 bg-gold-50 border-2 border-gold-300 rounded-2xl px-5 py-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Bell className="text-gold-600" size={24} />
-              <p className="font-bold text-brand-800">لديك {counts.pending} طلب بانتظار المراجعة — يرجى المباشرة.</p>
+              <p className="font-bold text-brand-800">{t('owner.bannerA')}{counts.pending}{t('owner.bannerB')}</p>
             </div>
             <button onClick={() => setFilter('pending')} className="bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-4 py-2 rounded-lg whitespace-nowrap">
-              عرض الطلبات
+              {t('owner.viewRequests')}
             </button>
           </div>
         )}
@@ -198,15 +204,15 @@ export default function OwnerDashboard() {
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
             <div className="text-3xl font-bold text-brand-600">{counts.all}</div>
-            <p className="text-slate-500 text-sm mt-1">إجمالي الحجوزات</p>
+            <p className="text-slate-500 text-sm mt-1">{t('owner.statTotal')}</p>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
             <div className="text-3xl font-bold text-gold-600">{counts.pending}</div>
-            <p className="text-slate-500 text-sm mt-1">بانتظار الموافقة</p>
+            <p className="text-slate-500 text-sm mt-1">{t('owner.statPending')}</p>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
             <div className="text-3xl font-bold text-green-600">{counts.approved}</div>
-            <p className="text-slate-500 text-sm mt-1">مؤكّدة</p>
+            <p className="text-slate-500 text-sm mt-1">{t('owner.statApproved')}</p>
           </div>
         </div>
 
@@ -214,9 +220,9 @@ export default function OwnerDashboard() {
           {/* Appointments */}
           <section className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <h2 className="text-xl font-bold text-slate-800">الحجوزات</h2>
+              <h2 className="text-xl font-bold text-slate-800">{t('owner.bookings')}</h2>
               <div className="flex bg-slate-100 rounded-lg p-1 text-sm">
-                {[['all', 'الكل'], ['pending', 'قيد المراجعة'], ['approved', 'مؤكّدة']].map(([k, l]) => (
+                {[['all', t('owner.filterAll')], ['pending', t('owner.filterPending')], ['approved', t('owner.filterApproved')]].map(([k, l]) => (
                   <button key={k} onClick={() => setFilter(k)}
                     className={`px-3 py-1.5 rounded-md font-semibold transition ${filter === k ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}>
                     {l}
@@ -226,21 +232,21 @@ export default function OwnerDashboard() {
             </div>
 
             {loading ? (
-              <p className="text-slate-400">جارٍ التحميل...</p>
+              <p className="text-slate-400">{t('owner.loading')}</p>
             ) : shown.length === 0 ? (
-              <p className="text-slate-400 text-center py-8">لا توجد حجوزات في هذا التصنيف.</p>
+              <p className="text-slate-400 text-center py-8">{t('owner.noneInCat')}</p>
             ) : (
               <div className="space-y-3">
                 {shown.map((a) => {
-                  const st = STATUS[a.status] || STATUS.pending;
+                  const cls = STATUS_CLS[a.status] || STATUS_CLS.pending;
                   return (
                     <div key={a.id} className="border border-slate-200 rounded-xl p-4">
                       <div className="flex justify-between items-start mb-2 gap-2">
                         <div>
-                          <span className="font-bold text-slate-800">{a.consultation_type}</span>
-                          <span className="text-slate-400 text-sm mr-2">({a.price} ر.س)</span>
+                          <span className="font-bold text-slate-800">{typeLabel(a.consultation_type)}</span>
+                          <span className="text-slate-400 text-sm mr-2">({a.price} {t('prices.currency')})</span>
                         </div>
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${st.cls}`}>{st.label}</span>
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${cls}`}>{t('status.' + a.status)}</span>
                       </div>
                       <div className="text-sm text-slate-600 space-y-1 mb-3">
                         <p className="flex items-center gap-2"><User size={15} /> {a.client_name}</p>
@@ -251,7 +257,7 @@ export default function OwnerDashboard() {
                             <a href={`tel:${a.client_phone}`} className="text-brand-600 hover:underline">{a.client_phone}</a>
                             <a href={`https://wa.me/${a.client_phone.replace(/[^0-9]/g, '').replace(/^0/, '966')}`}
                               target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline text-xs">
-                              (واتساب)
+                              {t('owner.waParen')}
                             </a>
                           </p>
                         )}
@@ -262,35 +268,35 @@ export default function OwnerDashboard() {
                         {a.description && <p className="text-slate-500 pt-1">📝 {a.description}</p>}
                         <p className="flex items-center gap-2 pt-1">
                           <CreditCard size={15} />
-                          <span>{a.price} ر.س</span>
+                          <span>{a.price} {t('prices.currency')}</span>
                           {a.payment_status === 'paid' ? (
-                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">مدفوع ✓</span>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{t('owner.paid')}</span>
                           ) : (
-                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">غير مدفوع</span>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{t('owner.unpaid')}</span>
                           )}
                         </p>
                       </div>
                       {a.status !== 'approved' && (
                         <button onClick={() => approveAndNotify(a)}
                           className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1 ml-2">
-                          <Check size={16} /> موافقة وتأكيد واتساب
+                          <Check size={16} /> {t('owner.approve')}
                         </button>
                       )}
                       {a.status === 'approved' && a.client_phone && (
                         <button onClick={() => sendWhatsAppConfirm(a)}
                           className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1 ml-2">
-                          <MessageCircle size={16} /> إعادة إرسال التأكيد
+                          <MessageCircle size={16} /> {t('owner.resend')}
                         </button>
                       )}
                       {a.status !== 'rejected' && (
                         <button onClick={() => setStatus(a.id, 'rejected')}
                           className="bg-slate-100 hover:bg-red-100 text-red-600 text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1">
-                          <X size={16} /> رفض
+                          <X size={16} /> {t('owner.reject')}
                         </button>
                       )}
                       <button onClick={() => togglePaid(a.id, a.payment_status)}
                         className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold px-4 py-2 rounded-lg inline-flex items-center gap-1">
-                        <CreditCard size={16} /> {a.payment_status === 'paid' ? 'إلغاء الدفع' : 'تعليم كمدفوع'}
+                        <CreditCard size={16} /> {a.payment_status === 'paid' ? t('owner.unmarkPaid') : t('owner.markPaid')}
                       </button>
                     </div>
                   );
@@ -301,18 +307,18 @@ export default function OwnerDashboard() {
 
           {/* Available slots */}
           <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm h-fit">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">المواعيد المتاحة</h2>
+            <h2 className="text-xl font-bold text-slate-800 mb-4">{t('owner.availTitle')}</h2>
             <form onSubmit={addSlot} className="space-y-3 mb-5">
               <input type="date" value={newSlot.date} onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" required />
               <input type="time" value={newSlot.time} onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })}
                 className="w-full bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" required />
               <button type="submit" className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl inline-flex items-center justify-center gap-1">
-                <Plus size={18} /> إضافة موعد متاح
+                <Plus size={18} /> {t('owner.addSlot')}
               </button>
             </form>
             {slots.length === 0 ? (
-              <p className="text-slate-400 text-center text-sm py-4">لا توجد مواعيد متاحة مضافة.</p>
+              <p className="text-slate-400 text-center text-sm py-4">{t('owner.noSlots')}</p>
             ) : (
               <div className="space-y-2">
                 {slots.map((s) => (
@@ -331,20 +337,20 @@ export default function OwnerDashboard() {
         {/* Clients list */}
         <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mt-8">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <User size={22} className="text-brand-600" /> قائمة العملاء ({clients.length})
+            <User size={22} className="text-brand-600" /> {t('owner.clientsTitle')} ({clients.length})
           </h2>
           {clients.length === 0 ? (
-            <p className="text-slate-400 text-center py-6">لا يوجد عملاء بعد.</p>
+            <p className="text-slate-400 text-center py-6">{t('owner.noClients')}</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-right">
+              <table className="w-full text-sm text-start">
                 <thead>
                   <tr className="text-slate-500 border-b border-slate-200">
-                    <th className="py-2 px-2 font-semibold">الاسم</th>
-                    <th className="py-2 px-2 font-semibold">البريد</th>
-                    <th className="py-2 px-2 font-semibold">الجوال</th>
-                    <th className="py-2 px-2 font-semibold">الحجوزات</th>
-                    <th className="py-2 px-2 font-semibold">تواصل</th>
+                    <th className="py-2 px-2 font-semibold">{t('owner.thName')}</th>
+                    <th className="py-2 px-2 font-semibold">{t('owner.thEmail')}</th>
+                    <th className="py-2 px-2 font-semibold">{t('owner.thPhone')}</th>
+                    <th className="py-2 px-2 font-semibold">{t('owner.thBookings')}</th>
+                    <th className="py-2 px-2 font-semibold">{t('owner.thContact')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -357,8 +363,8 @@ export default function OwnerDashboard() {
                       <td className="py-3 px-2">
                         {c.phone && (
                           <span className="flex items-center gap-3">
-                            <a href={`tel:${c.phone}`} className="text-brand-600 hover:underline">اتصال</a>
-                            <a href={waLink(c.phone)} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">واتساب</a>
+                            <a href={`tel:${c.phone}`} className="text-brand-600 hover:underline">{t('owner.call')}</a>
+                            <a href={waLink(c.phone)} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">{t('owner.whatsapp')}</a>
                           </span>
                         )}
                       </td>

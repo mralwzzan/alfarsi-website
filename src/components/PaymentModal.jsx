@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { MOYASAR_PUBLISHABLE_KEY, MOYASAR_METHODS } from '../lib/payment';
+import { useLang } from '../context/LanguageContext';
 
 const MOYASAR_CSS = 'https://cdn.moyasar.com/mpf/1.15.0/moyasar.css';
 const MOYASAR_JS = 'https://cdn.moyasar.com/mpf/1.15.0/moyasar.js';
@@ -25,7 +26,9 @@ const loadAsset = (href, isScript) =>
 
 // نافذة الدفع: تعرض نموذج Moyasar (بطاقة/مدى/STC Pay/Apple Pay)
 export default function PaymentModal({ appointment, onClose }) {
+  const { t, dir } = useLang();
   const initialized = useRef(false);
+  const typeLabel = t('types')[appointment.consultation_type] || appointment.consultation_type;
 
   useEffect(() => {
     let cancelled = false;
@@ -39,7 +42,7 @@ export default function PaymentModal({ appointment, onClose }) {
           element: '.mysr-form',
           amount: Math.round((appointment.price || 0) * 100), // بالهللات
           currency: 'SAR',
-          description: `استشارة ${appointment.consultation_type}`,
+          description: `${typeLabel} — ${appointment.consultation_type}`,
           publishable_api_key: MOYASAR_PUBLISHABLE_KEY,
           callback_url: `${window.location.origin}/dashboard`,
           methods: MOYASAR_METHODS,
@@ -61,19 +64,19 @@ export default function PaymentModal({ appointment, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={onClose}>
-      <div dir="rtl" className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div dir={dir} className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-lg text-slate-800">دفع قيمة الاستشارة</h3>
+          <h3 className="font-bold text-lg text-slate-800">{t('payment.title')}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700">
             <X size={22} />
           </button>
         </div>
-        <p className="text-slate-600">{appointment.consultation_type}</p>
+        <p className="text-slate-600">{typeLabel}</p>
         <p className="text-3xl font-bold text-brand-600 mb-5">
-          {appointment.price} <span className="text-base">ر.س</span>
+          {appointment.price} <span className="text-base">{t('prices.currency')}</span>
         </p>
         <div className="mysr-form" />
-        <p className="text-xs text-slate-400 mt-4 text-center">دفع آمن ومشفّر عبر Moyasar — مدى، فيزا، ماستركارد، Apple Pay، STC Pay</p>
+        <p className="text-xs text-slate-400 mt-4 text-center">{t('payment.secure')}</p>
       </div>
     </div>
   );
