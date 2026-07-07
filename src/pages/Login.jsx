@@ -3,10 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function Login() {
   const navigate = useNavigate();
   const { isOwner } = useAuth();
+  const { t } = useLang();
   const [mode, setMode] = useState('login'); // login | signup
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
   const [error, setError] = useState('');
@@ -24,7 +27,7 @@ export default function Login() {
     setInfo('');
 
     if (!isSupabaseConfigured) {
-      setError('لم يتم ربط قاعدة البيانات بعد. تواصل مع مدير الموقع لإكمال الإعداد.');
+      setError(t('login.notConfigured'));
       return;
     }
 
@@ -40,7 +43,7 @@ export default function Login() {
         if (data.session) {
           goAfterAuth(form.email);
         } else {
-          setInfo('✅ تم إنشاء الحساب! يمكنك الآن تسجيل الدخول.');
+          setInfo(t('login.signupSuccess'));
           setMode('login');
         }
       } else {
@@ -52,10 +55,10 @@ export default function Login() {
         goAfterAuth(form.email);
       }
     } catch (err) {
-      const msg = err?.message || 'حدث خطأ، حاول مرة أخرى.';
-      if (msg.includes('Invalid login')) setError('البريد أو كلمة المرور غير صحيحة.');
-      else if (msg.includes('already registered')) setError('هذا البريد مسجّل مسبقاً. سجّل الدخول.');
-      else if (msg.includes('at least')) setError('كلمة المرور قصيرة (6 أحرف على الأقل).');
+      const msg = err?.message || t('login.genericError');
+      if (msg.includes('Invalid login')) setError(t('login.invalidLogin'));
+      else if (msg.includes('already registered')) setError(t('login.alreadyReg'));
+      else if (msg.includes('at least')) setError(t('login.shortPass'));
       else setError(msg);
     } finally {
       setBusy(false);
@@ -65,8 +68,11 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-gold-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="flex justify-center mb-4">
+          <LanguageToggle className="border-slate-300 text-slate-600 hover:border-brand-400 hover:text-brand-600 bg-white" />
+        </div>
         <Link to="/" className="flex items-center justify-center mb-8">
-          <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-20 w-auto" />
+          <img src="/logo.jpeg" alt={t('hero.logoAlt')} className="h-20 w-auto" />
         </Link>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
@@ -75,13 +81,13 @@ export default function Login() {
               onClick={() => { setMode('login'); setError(''); setInfo(''); }}
               className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'login' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
             >
-              تسجيل الدخول
+              {t('login.loginTab')}
             </button>
             <button
               onClick={() => { setMode('signup'); setError(''); setInfo(''); }}
               className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'signup' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
             >
-              حساب جديد
+              {t('login.signupTab')}
             </button>
           </div>
 
@@ -91,20 +97,20 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">الاسم الكامل</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('login.name')}</label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
-                  placeholder="محمد علي"
+                  placeholder={t('login.namePh')}
                   required
                 />
               </div>
             )}
             {mode === 'signup' && (
               <div>
-                <label className="block text-slate-700 font-semibold mb-2">رقم الجوال</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('login.phone')}</label>
                 <input
                   type="tel"
                   value={form.phone}
@@ -116,7 +122,7 @@ export default function Login() {
               </div>
             )}
             <div>
-              <label className="block text-slate-700 font-semibold mb-2">البريد الإلكتروني</label>
+              <label className="block text-slate-700 font-semibold mb-2">{t('login.email')}</label>
               <input
                 type="email"
                 value={form.email}
@@ -127,7 +133,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <label className="block text-slate-700 font-semibold mb-2">كلمة المرور</label>
+              <label className="block text-slate-700 font-semibold mb-2">{t('login.password')}</label>
               <input
                 type="password"
                 value={form.password}
@@ -143,14 +149,14 @@ export default function Login() {
               disabled={busy}
               className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2"
             >
-              {busy ? 'جارٍ المعالجة...' : mode === 'login' ? 'دخول' : 'إنشاء الحساب'}
+              {busy ? t('login.processing') : mode === 'login' ? t('login.loginBtn') : t('login.signupBtn')}
               {!busy && <ArrowRight size={20} />}
             </button>
           </form>
         </div>
 
         <Link to="/" className="block text-center text-slate-500 hover:text-brand-600 mt-6 font-semibold">
-          ← العودة للموقع
+          {t('login.back')}
         </Link>
       </div>
     </div>

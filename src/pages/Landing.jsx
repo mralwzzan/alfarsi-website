@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLang } from '../context/LanguageContext';
+import LanguageToggle from '../components/LanguageToggle';
 
 export default function AlFarsiLawOffice() {
   const navigate = useNavigate();
   const { user, isOwner } = useAuth();
+  const { t } = useLang();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -21,7 +24,7 @@ export default function AlFarsiLawOffice() {
   const accountPath = user ? (isOwner ? '/admin' : '/dashboard') : '/login';
 
   // زر "احجز الآن" يوجّه العميل إلى المنصة (تسجيل دخول ثم لوحة الحجز)
-  // عند تمرير نوع الخدمة، يُحفظ ليُحدَّد مسبقاً في نموذج الحجز
+  // عند تمرير نوع الخدمة، يُحفظ ليُحدَّد مسبقاً في نموذج الحجز (المفتاح بالعربية دائماً)
   const openBookingForm = (serviceType) => {
     if (serviceType) sessionStorage.setItem('selectedService', serviceType);
     navigate(accountPath);
@@ -30,14 +33,16 @@ export default function AlFarsiLawOffice() {
   const handleContactSubmit = (e) => {
     e.preventDefault();
     const text =
-      `📩 رسالة جديدة من موقع المكتب\n\n` +
-      `👤 الاسم: ${formData.name}\n` +
-      `📧 البريد: ${formData.email}\n` +
-      `📞 الهاتف: ${formData.phone}\n` +
-      `📝 الرسالة: ${formData.message}`;
+      `${t('contact.waText')}\n\n` +
+      `👤 ${t('contact.waName')}: ${formData.name}\n` +
+      `📧 ${t('contact.waEmail')}: ${formData.email}\n` +
+      `📞 ${t('contact.waPhone')}: ${formData.phone}\n` +
+      `📝 ${t('contact.waMsg')}: ${formData.message}`;
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, '_blank');
     setFormData({ name: '', email: '', phone: '', message: '' });
   };
+
+  const accountLabel = user ? (isOwner ? t('nav.ownerPanel') : t('nav.account')) : t('nav.login');
 
   return (
     <div className="w-full bg-white">
@@ -45,44 +50,48 @@ export default function AlFarsiLawOffice() {
       <nav className="fixed w-full top-0 bg-white shadow-sm z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <a href="#" className="flex items-center">
-            <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية" className="h-12 md:h-14 w-auto" />
+            <img src="/logo.jpeg" alt={t('hero.logoAlt')} className="h-12 md:h-14 w-auto" />
           </a>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex gap-8">
-            <a href="#services" className="text-slate-700 hover:text-brand-600 font-semibold transition">الخدمات</a>
-            <a href="#prices" className="text-slate-700 hover:text-brand-600 font-semibold transition">الأسعار</a>
-            <a href="#about" className="text-slate-700 hover:text-brand-600 font-semibold transition">معلومات</a>
-            <a href="#contact" className="text-slate-700 hover:text-brand-600 font-semibold transition">تواصل</a>
+            <a href="#services" className="text-slate-700 hover:text-brand-600 font-semibold transition">{t('nav.services')}</a>
+            <a href="#prices" className="text-slate-700 hover:text-brand-600 font-semibold transition">{t('nav.prices')}</a>
+            <a href="#about" className="text-slate-700 hover:text-brand-600 font-semibold transition">{t('nav.about')}</a>
+            <a href="#contact" className="text-slate-700 hover:text-brand-600 font-semibold transition">{t('nav.contact')}</a>
           </div>
 
           <div className="hidden md:flex gap-3 items-center">
+            <LanguageToggle className="border-slate-300 text-slate-700 hover:border-brand-400 hover:text-brand-600" />
             <button onClick={() => navigate(accountPath)} className="flex items-center gap-2 text-slate-700 hover:text-brand-600 font-semibold transition">
               {user ? <LayoutDashboard size={20} /> : <LogIn size={20} />}
-              {user ? (isOwner ? 'لوحة الإدارة' : 'حسابي') : 'تسجيل الدخول'}
+              {accountLabel}
             </button>
-            <button onClick={openBookingForm} className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold transition">
-              احجز الآن
+            <button onClick={() => openBookingForm()} className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+              {t('nav.book')}
             </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden">
-            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageToggle className="border-slate-300 text-slate-700" />
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-slate-200 py-4 px-4 space-y-3">
-            <a href="#services" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">الخدمات</a>
-            <a href="#prices" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">الأسعار</a>
-            <a href="#about" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">معلومات</a>
-            <a href="#contact" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">تواصل</a>
+            <a href="#services" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">{t('nav.services')}</a>
+            <a href="#prices" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">{t('nav.prices')}</a>
+            <a href="#about" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">{t('nav.about')}</a>
+            <a href="#contact" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">{t('nav.contact')}</a>
             <button onClick={() => {setIsMenuOpen(false); navigate(accountPath);}} className="w-full border border-brand-600 text-brand-600 px-4 py-3 rounded-lg font-semibold text-center transition">
-              {user ? (isOwner ? 'لوحة الإدارة' : 'حسابي') : 'تسجيل الدخول'}
+              {accountLabel}
             </button>
-            <button onClick={() => {setIsMenuOpen(false); openBookingForm();}} className="w-full bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-lg font-semibold text-center transition">احجز الآن</button>
+            <button onClick={() => {setIsMenuOpen(false); openBookingForm();}} className="w-full bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 rounded-lg font-semibold text-center transition">{t('nav.book')}</button>
           </div>
         )}
       </nav>
@@ -108,23 +117,23 @@ export default function AlFarsiLawOffice() {
         <div className="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <div className="hero-enter inline-block mb-6 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
-              <p className="text-gold-300 font-semibold text-sm">✨ خدماتنا القانونية</p>
+              <p className="text-gold-300 font-semibold text-sm">{t('hero.badge')}</p>
             </div>
             <h1 className="hero-enter-2 font-display text-3xl md:text-5xl font-bold text-white mb-6 leading-relaxed">
-              مكتب <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">ساير بن فارس المطيري</span> للمحاماة والاستشارات الشرعية والقانونية
+              {t('hero.titleBefore')}<span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">{t('hero.titleName')}</span>{t('hero.titleAfter')}
             </h1>
             <p className="hero-enter-3 text-xl text-brand-100 mb-8 leading-relaxed">
-              نقدم استشارات قانونية متخصصة في المجالات العائلية والتجارية والعامة بخبرة واحترافية عالية. فريقنا مجهز لحماية حقوقك بأفضل الطرق القانونية.
+              {t('hero.subtitle')}
             </p>
             <div className="hero-enter-3 flex gap-4 flex-wrap">
               <button
                 onClick={() => openBookingForm('احوال شخصية')}
                 className="bg-gold-500 hover:bg-gold-600 text-brand-900 px-8 py-4 rounded-lg font-bold text-lg transition shadow-lg hover:shadow-xl flex items-center gap-2"
               >
-                احجز استشارة <ArrowRight size={20} />
+                {t('hero.bookBtn')} <ArrowRight size={20} />
               </button>
               <a href="#contact" className="bg-transparent border-2 border-gold-400 text-gold-200 hover:bg-white/10 px-8 py-4 rounded-lg font-bold text-lg transition">
-                تواصل معنا
+                {t('hero.contactBtn')}
               </a>
             </div>
           </div>
@@ -132,21 +141,21 @@ export default function AlFarsiLawOffice() {
           <div className="hero-enter-card relative">
             <div className="bg-gradient-to-br from-gold-400 to-brand-600 rounded-3xl p-1 shadow-2xl">
               <div className="bg-white rounded-3xl p-10 text-center">
-                <img src="/logo.jpeg" alt="شعار المكتب" className="w-full max-w-xs mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-slate-800 mb-3">استشارات قانونية احترافية</h3>
-                <p className="text-slate-600 mb-8">حماية حقوقك هي أولويتنا الأولى</p>
-                <div className="space-y-3 text-left">
+                <img src="/logo.jpeg" alt={t('hero.logoAlt')} className="w-full max-w-xs mx-auto mb-6" />
+                <h3 className="text-2xl font-bold text-slate-800 mb-3">{t('hero.cardTitle')}</h3>
+                <p className="text-slate-600 mb-8">{t('hero.cardSubtitle')}</p>
+                <div className="space-y-3 text-start">
                   <div className="flex items-center gap-3 text-slate-700">
                     <Check className="text-gold-600" size={20} />
-                    <span>فريق متخصص وذو خبرة</span>
+                    <span>{t('hero.cardF1')}</span>
                   </div>
                   <div className="flex items-center gap-3 text-slate-700">
                     <Check className="text-gold-600" size={20} />
-                    <span>استشارات سرية وآمنة</span>
+                    <span>{t('hero.cardF2')}</span>
                   </div>
                   <div className="flex items-center gap-3 text-slate-700">
                     <Check className="text-gold-600" size={20} />
-                    <span>متابعة دقيقة لقضاياك</span>
+                    <span>{t('hero.cardF3')}</span>
                   </div>
                 </div>
               </div>
@@ -159,35 +168,33 @@ export default function AlFarsiLawOffice() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block mb-4 px-4 py-2 bg-gold-100 rounded-full">
-            <p className="text-brand-700 font-semibold text-sm">هدف المكتب</p>
+            <p className="text-brand-700 font-semibold text-sm">{t('mission.badge')}</p>
           </div>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-6 leading-relaxed">
-            نحو عدالةٍ يطمئنّ إليها الجميع
+            {t('mission.title')}
           </h2>
           <p className="text-xl text-slate-600 leading-loose mb-4">
-            نؤمن في مكتب ساير بن فارس المطيري بأنّ العدالة حقٌّ أصيلٌ لكل فرد، ورسالتنا أن نقف إلى جانبك
-            بخبرةٍ واحترافيةٍ عالية لنحمي حقوقك ونرسم لك أوضح الطرق القانونية وأكثرها أماناً.
+            {t('mission.p1')}
           </p>
           <p className="text-lg text-slate-500 leading-loose mb-12">
-            نلتزم بالشفافية التامّة والسرّية المطلقة في كل قضية، ونتعامل مع كل عميل باهتمامٍ شخصيّ
-            وكأنّ قضيته قضيتنا — لأنّ ثقتك أمانة، وحقّك غايتنا.
+            {t('mission.p2')}
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6 text-right">
+          <div className="grid md:grid-cols-3 gap-6 text-start">
             <div className="bg-gradient-to-br from-brand-50 to-white rounded-2xl p-6 border border-brand-100 shadow-sm">
               <div className="text-4xl mb-3">🛡️</div>
-              <h3 className="text-xl font-bold text-brand-800 mb-2">الثقة والسرّية</h3>
-              <p className="text-slate-600 leading-relaxed">نحافظ على خصوصيتك التامّة في كل تفاصيل قضيتك دون استثناء.</p>
+              <h3 className="text-xl font-bold text-brand-800 mb-2">{t('mission.c1Title')}</h3>
+              <p className="text-slate-600 leading-relaxed">{t('mission.c1Body')}</p>
             </div>
             <div className="bg-gradient-to-br from-gold-50 to-white rounded-2xl p-6 border border-gold-200 shadow-sm">
               <div className="text-4xl mb-3">⚖️</div>
-              <h3 className="text-xl font-bold text-brand-800 mb-2">الاحترافية</h3>
-              <p className="text-slate-600 leading-relaxed">فريقٌ متخصّص يجمع بين العلم الشرعي والنظامي بخبرةٍ راسخة.</p>
+              <h3 className="text-xl font-bold text-brand-800 mb-2">{t('mission.c2Title')}</h3>
+              <p className="text-slate-600 leading-relaxed">{t('mission.c2Body')}</p>
             </div>
             <div className="bg-gradient-to-br from-brand-50 to-white rounded-2xl p-6 border border-brand-100 shadow-sm">
               <div className="text-4xl mb-3">🤝</div>
-              <h3 className="text-xl font-bold text-brand-800 mb-2">الالتزام</h3>
-              <p className="text-slate-600 leading-relaxed">نرافقك خطوةً بخطوة حتى تنال حقّك كاملاً وأنت مطمئن.</p>
+              <h3 className="text-xl font-bold text-brand-800 mb-2">{t('mission.c3Title')}</h3>
+              <p className="text-slate-600 leading-relaxed">{t('mission.c3Body')}</p>
             </div>
           </div>
         </div>
@@ -200,76 +207,73 @@ export default function AlFarsiLawOffice() {
         <div className="relative z-10 max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-block mb-4 px-4 py-2 bg-gold-500/20 border border-gold-500/40 rounded-full">
-              <p className="text-gold-300 font-semibold text-sm">⚖️ خدماتنا القانونية</p>
+              <p className="text-gold-300 font-semibold text-sm">{t('services.badge')}</p>
             </div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">خدماتنا</h2>
-            <p className="text-xl text-brand-100">نقدم مجموعة شاملة من الخدمات القانونية المتخصصة</p>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">{t('services.title')}</h2>
+            <p className="text-xl text-brand-100">{t('services.subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Service 1 */}
             <div className="service-card-3d bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl p-8 border border-brand-200 cursor-pointer" onClick={() => openBookingForm('احوال شخصية')}>
               <div className="text-5xl mb-6">⚖️</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">احوال شخصية</h3>
-              <p className="text-slate-700 mb-6 leading-relaxed">
-                نتعامل مع قضايا الأحوال الشخصية بحساسية واحترافية. من الزواج والطلاق إلى حقوق الحضانة والمواريث.
-              </p>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('services.personalTitle')}</h3>
+              <p className="text-slate-700 mb-6 leading-relaxed">{t('services.personalDesc')}</p>
               <button onClick={() => openBookingForm('احوال شخصية')} className="flex items-center text-brand-600 font-semibold hover:gap-3 transition-all gap-2">
-                احجز الآن
-                <ArrowRight size={20} />
+                {t('services.book')} <ArrowRight size={20} />
               </button>
             </div>
 
             {/* Service 2 */}
             <div className="service-card-3d bg-gradient-to-br from-gold-50 to-gold-100 rounded-2xl p-8 border border-gold-200 cursor-pointer" onClick={() => openBookingForm('تجارية')}>
               <div className="text-5xl mb-6">💼</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">الاستشارات التجارية</h3>
-              <p className="text-slate-700 mb-6 leading-relaxed">
-                نساعد الشركات والمتاجر في الأمور التجارية والعقود والشراكات والالتزامات المالية.
-              </p>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('services.commercialTitle')}</h3>
+              <p className="text-slate-700 mb-6 leading-relaxed">{t('services.commercialDesc')}</p>
               <button onClick={() => openBookingForm('تجارية')} className="flex items-center text-gold-600 font-semibold hover:gap-3 transition-all gap-2">
-                احجز الآن
-                <ArrowRight size={20} />
+                {t('services.book')} <ArrowRight size={20} />
               </button>
             </div>
 
             {/* Service 3 */}
             <div className="service-card-3d bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border border-green-200 cursor-pointer" onClick={() => openBookingForm('عامة')}>
               <div className="text-5xl mb-6">📋</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">الاستشارات العامة</h3>
-              <p className="text-slate-700 mb-6 leading-relaxed">
-                استشارات عامة في مختلف المجالات القانونية الأخرى. نحن هنا للإجابة على جميع أسئلتك.
-              </p>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('services.generalTitle')}</h3>
+              <p className="text-slate-700 mb-6 leading-relaxed">{t('services.generalDesc')}</p>
               <button onClick={() => openBookingForm('عامة')} className="flex items-center text-green-600 font-semibold hover:gap-3 transition-all gap-2">
-                احجز الآن
-                <ArrowRight size={20} />
+                {t('services.book')} <ArrowRight size={20} />
               </button>
             </div>
 
             {/* Service 4 */}
             <div className="service-card-3d bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 border border-purple-200 cursor-pointer" onClick={() => openBookingForm('التوثيق')}>
               <div className="text-5xl mb-6">📝</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">التوثيق</h3>
-              <p className="text-slate-700 mb-6 leading-relaxed">
-                توثيق العقود والوكالات والإقرارات والمستندات القانونية بشكل نظامي وموثوق.
-              </p>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('services.docTitle')}</h3>
+              <p className="text-slate-700 mb-6 leading-relaxed">{t('services.docDesc')}</p>
               <button onClick={() => openBookingForm('التوثيق')} className="flex items-center text-purple-600 font-semibold hover:gap-3 transition-all gap-2">
-                احجز الآن
-                <ArrowRight size={20} />
+                {t('services.book')} <ArrowRight size={20} />
               </button>
             </div>
 
             {/* Service 5 */}
             <div className="service-card-3d bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl p-8 border border-teal-200 cursor-pointer" onClick={() => openBookingForm('عمالية')}>
               <div className="text-5xl mb-6">👷</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">استشارة عمالية</h3>
-              <p className="text-slate-700 mb-6 leading-relaxed">
-                قضايا العمل والعمال: عقود العمل، الأجور، الفصل التعسفي، نهاية الخدمة، والمنازعات العمالية.
-              </p>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">{t('services.laborTitle')}</h3>
+              <p className="text-slate-700 mb-6 leading-relaxed">{t('services.laborDesc')}</p>
               <button onClick={() => openBookingForm('عمالية')} className="flex items-center text-teal-600 font-semibold hover:gap-3 transition-all gap-2">
-                احجز الآن
-                <ArrowRight size={20} />
+                {t('services.book')} <ArrowRight size={20} />
               </button>
+            </div>
+          </div>
+
+          {/* ملاحظة خصم قيمة الاستشارة */}
+          <div className="mt-10 max-w-3xl mx-auto bg-gradient-to-l from-gold-50 to-white border-2 border-gold-300 rounded-2xl p-6 flex items-start gap-4 shadow-sm">
+            <div className="text-3xl">💡</div>
+            <div>
+              <h4 className="text-lg font-bold text-brand-800 mb-1">{t('services.discountTitle')}</h4>
+              <p className="text-slate-700 leading-relaxed">
+                {t('services.discountBody')}
+                <span className="block text-sm text-slate-500 mt-1">{t('services.discountNote')}</span>
+              </p>
             </div>
           </div>
         </div>
@@ -279,78 +283,79 @@ export default function AlFarsiLawOffice() {
       <section id="prices" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-4">أسعار الاستشارات</h2>
-            <p className="text-xl text-slate-600">أسعار واضحة وشفافة بدون رسوم مخفية</p>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-4">{t('prices.title')}</h2>
+            <p className="text-xl text-slate-600">{t('prices.subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
               <div className="text-4xl mb-4">⚖️</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">احوال شخصية</h3>
-              <div className="text-4xl font-bold text-brand-600 mb-6">300 <span className="text-lg">ر.س</span></div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('prices.personalTitle')}</h3>
+              <div className="text-4xl font-bold text-brand-600 mb-6">300 <span className="text-lg">{t('prices.currency')}</span></div>
               <ul className="space-y-3 mb-8 text-slate-700">
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> استشارة مباشرة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> توثيق الموعد</li>
+                {t('prices.personalF').map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><Check size={20} className="text-green-500" /> {f}</li>
+                ))}
               </ul>
               <button onClick={() => openBookingForm('احوال شخصية')} className="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-lg font-bold transition">
-                احجز الآن
+                {t('prices.book')}
               </button>
             </div>
 
             <div className="bg-white rounded-2xl p-8 border-2 border-gold-500 shadow-lg relative">
-              <div className="absolute -top-4 left-8 bg-gold-500 text-white px-4 py-1 rounded-full text-sm font-bold">الأكثر طلباً</div>
+              <div className="absolute -top-4 start-8 bg-gold-500 text-white px-4 py-1 rounded-full text-sm font-bold">{t('prices.popular')}</div>
               <div className="text-4xl mb-4">💼</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">استشارة تجارية</h3>
-              <div className="text-4xl font-bold text-gold-600 mb-6">750 <span className="text-lg">ر.س</span></div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('prices.commercialTitle')}</h3>
+              <div className="text-4xl font-bold text-gold-600 mb-6">750 <span className="text-lg">{t('prices.currency')}</span></div>
               <ul className="space-y-3 mb-8 text-slate-700">
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> متخصصة في العقود</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> نصائح متقدمة</li>
+                {t('prices.commercialF').map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><Check size={20} className="text-green-500" /> {f}</li>
+                ))}
               </ul>
               <button onClick={() => openBookingForm('تجارية')} className="w-full bg-gold-600 hover:bg-gold-700 text-white py-3 rounded-lg font-bold transition">
-                احجز الآن
+                {t('prices.book')}
               </button>
             </div>
 
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
               <div className="text-4xl mb-4">📋</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">استشارة عامة</h3>
-              <div className="text-4xl font-bold text-green-600 mb-6">500 <span className="text-lg">ر.س</span></div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('prices.generalTitle')}</h3>
+              <div className="text-4xl font-bold text-green-600 mb-6">500 <span className="text-lg">{t('prices.currency')}</span></div>
               <ul className="space-y-3 mb-8 text-slate-700">
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> إجابات شاملة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> توجيهات قانونية</li>
+                {t('prices.generalF').map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><Check size={20} className="text-green-500" /> {f}</li>
+                ))}
               </ul>
               <button onClick={() => openBookingForm('عامة')} className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition">
-                احجز الآن
+                {t('prices.book')}
               </button>
             </div>
 
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
               <div className="text-4xl mb-4">📝</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">التوثيق</h3>
-              <div className="text-4xl font-bold text-purple-600 mb-6">750 <span className="text-lg">ر.س</span></div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('prices.docTitle')}</h3>
+              <div className="text-4xl font-bold text-purple-600 mb-6">750 <span className="text-lg">{t('prices.currency')}</span></div>
               <ul className="space-y-3 mb-8 text-slate-700">
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> توثيق نظامي موثوق</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> عقود ووكالات وإقرارات</li>
+                {t('prices.docF').map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><Check size={20} className="text-green-500" /> {f}</li>
+                ))}
               </ul>
               <button onClick={() => openBookingForm('التوثيق')} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold transition">
-                احجز الآن
+                {t('prices.book')}
               </button>
             </div>
 
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md hover:shadow-lg transition">
               <div className="text-4xl mb-4">👷</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">استشارة عمالية</h3>
-              <div className="text-4xl font-bold text-teal-600 mb-6">500 <span className="text-lg">ر.س</span></div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('prices.laborTitle')}</h3>
+              <div className="text-4xl font-bold text-teal-600 mb-6">500 <span className="text-lg">{t('prices.currency')}</span></div>
               <ul className="space-y-3 mb-8 text-slate-700">
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> مدة ساعة كاملة</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> قضايا العمل والعمال</li>
-                <li className="flex items-center gap-2"><Check size={20} className="text-green-500" /> حماية حقوقك العمالية</li>
+                {t('prices.laborF').map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><Check size={20} className="text-green-500" /> {f}</li>
+                ))}
               </ul>
               <button onClick={() => openBookingForm('عمالية')} className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-bold transition">
-                احجز الآن
+                {t('prices.book')}
               </button>
             </div>
           </div>
@@ -359,11 +364,10 @@ export default function AlFarsiLawOffice() {
           <div className="mt-10 max-w-3xl mx-auto bg-gradient-to-l from-gold-50 to-white border-2 border-gold-300 rounded-2xl p-6 flex items-start gap-4 shadow-sm">
             <div className="text-3xl">💡</div>
             <div>
-              <h4 className="text-lg font-bold text-brand-800 mb-1">ميزة عملائنا</h4>
+              <h4 className="text-lg font-bold text-brand-800 mb-1">{t('services.discountTitle')}</h4>
               <p className="text-slate-700 leading-relaxed">
-                في حال توكيل المكتب بقضيتك، تُخصم كامل قيمة الاستشارة من إجمالي أتعاب القضية —
-                فاستشارتك ليست تكلفة إضافية، بل خطوتك الأولى نحو حقّك.
-                <span className="block text-sm text-slate-500 mt-1">(تنطبق على جميع الاستشارات)</span>
+                {t('services.discountBody')}
+                <span className="block text-sm text-slate-500 mt-1">{t('services.discountNote')}</span>
               </p>
             </div>
           </div>
@@ -374,33 +378,33 @@ export default function AlFarsiLawOffice() {
       <section id="about" className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-6">عن المكتب</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-6">{t('about.title')}</h2>
             <p className="text-lg text-slate-700 mb-6 leading-relaxed">
-              مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية يتمتع بسمعة عريقة في تقديم الخدمات القانونية الاحترافية والموثوقة. فريقنا المتخصص يعمل بكل جدية لحماية حقوق عملائنا.
+              {t('about.p1')}
             </p>
             <p className="text-lg text-slate-700 mb-8 leading-relaxed">
-              نؤمن أن العدالة حق لكل شخص، ونلتزم بتقديم أفضل الخدمات بأسعار منصفة وشفافة. خبرتنا تمتد لسنوات في المجالات العائلية والتجارية والقانونية العامة.
+              {t('about.p2')}
             </p>
             <div className="space-y-4">
               <div className="flex items-start gap-4">
                 <Check className="text-green-500 mt-1" size={24} />
                 <div>
-                  <h4 className="text-lg font-bold text-slate-800">خبرة طويلة</h4>
-                  <p className="text-slate-600">سنوات من الخبرة في المجال القانوني</p>
+                  <h4 className="text-lg font-bold text-slate-800">{t('about.f1Title')}</h4>
+                  <p className="text-slate-600">{t('about.f1Body')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <Check className="text-green-500 mt-1" size={24} />
                 <div>
-                  <h4 className="text-lg font-bold text-slate-800">فريق متخصص</h4>
-                  <p className="text-slate-600">محامون ومستشارون قانونيون موثوقون</p>
+                  <h4 className="text-lg font-bold text-slate-800">{t('about.f2Title')}</h4>
+                  <p className="text-slate-600">{t('about.f2Body')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <Check className="text-green-500 mt-1" size={24} />
                 <div>
-                  <h4 className="text-lg font-bold text-slate-800">رقمية متطورة</h4>
-                  <p className="text-slate-600">تطبيق حديث لحجز المواعيد بسهولة</p>
+                  <h4 className="text-lg font-bold text-slate-800">{t('about.f3Title')}</h4>
+                  <p className="text-slate-600">{t('about.f3Body')}</p>
                 </div>
               </div>
             </div>
@@ -409,19 +413,19 @@ export default function AlFarsiLawOffice() {
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-8 text-white shadow-lg">
               <div className="text-5xl font-bold mb-2">50+</div>
-              <p className="text-brand-100">قضية منجزة بنجاح</p>
+              <p className="text-brand-100">{t('about.stat1')}</p>
             </div>
             <div className="bg-gradient-to-br from-gold-500 to-gold-600 rounded-2xl p-8 text-white shadow-lg">
               <div className="text-5xl font-bold mb-2">100%</div>
-              <p className="text-gold-100">رضا العملاء</p>
+              <p className="text-gold-100">{t('about.stat2')}</p>
             </div>
             <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-8 text-white shadow-lg">
               <div className="text-5xl font-bold mb-2">24/7</div>
-              <p className="text-green-100">متاح للاستشارات</p>
+              <p className="text-green-100">{t('about.stat3')}</p>
             </div>
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-8 text-white shadow-lg">
-              <div className="text-5xl font-bold mb-2">جدة</div>
-              <p className="text-purple-100">موقع موثوق</p>
+              <div className="text-5xl font-bold mb-2">{t('about.stat4City')}</div>
+              <p className="text-purple-100">{t('about.stat4')}</p>
             </div>
           </div>
         </div>
@@ -432,21 +436,21 @@ export default function AlFarsiLawOffice() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-8">تواصل معنا</h2>
-              
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-800 mb-8">{t('contact.title')}</h2>
+
               <div className="space-y-6 mb-8">
                 <div className="flex items-start gap-4">
                   <User className="text-brand-600 mt-1" size={28} />
                   <div>
-                    <h4 className="text-lg font-bold text-slate-800">المدير العام</h4>
-                    <p className="text-slate-700 text-lg">محمد بن أمين الوزان</p>
+                    <h4 className="text-lg font-bold text-slate-800">{t('contact.gmTitle')}</h4>
+                    <p className="text-slate-700 text-lg">{t('contact.gmName')}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <Phone className="text-brand-600 mt-1" size={28} />
                   <div>
-                    <h4 className="text-lg font-bold text-slate-800">هاتف المكتب</h4>
+                    <h4 className="text-lg font-bold text-slate-800">{t('contact.phoneTitle')}</h4>
                     <a href="https://wa.me/966590164400" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline text-lg block" dir="ltr">
                       0590164400
                     </a>
@@ -456,7 +460,7 @@ export default function AlFarsiLawOffice() {
                 <div className="flex items-start gap-4">
                   <Mail className="text-brand-600 mt-1" size={28} />
                   <div>
-                    <h4 className="text-lg font-bold text-slate-800">البريد الإلكتروني</h4>
+                    <h4 className="text-lg font-bold text-slate-800">{t('contact.emailTitle')}</h4>
                     <a href="mailto:mr.alwzzan@gmail.com" className="text-brand-600 hover:underline text-lg">
                       mr.alwzzan@gmail.com
                     </a>
@@ -466,44 +470,44 @@ export default function AlFarsiLawOffice() {
                 <div className="flex items-start gap-4">
                   <MapPin className="text-brand-600 mt-1" size={28} />
                   <div>
-                    <h4 className="text-lg font-bold text-slate-800">العنوان</h4>
-                    <p className="text-slate-700">برج الشاشة، الدور 11، مكتب 1108</p>
-                    <p className="text-slate-600">جدة، المملكة العربية السعودية</p>
+                    <h4 className="text-lg font-bold text-slate-800">{t('contact.addrTitle')}</h4>
+                    <p className="text-slate-700">{t('contact.addr1')}</p>
+                    <p className="text-slate-600">{t('contact.addr2')}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <Clock className="text-brand-600 mt-1" size={28} />
                   <div>
-                    <h4 className="text-lg font-bold text-slate-800">ساعات العمل</h4>
-                    <p className="text-slate-700">الأحد - الخميس: 9:00 صباحاً - 6:00 مساءً</p>
-                    <p className="text-slate-700">الجمعة - السبت: مغلق</p>
+                    <h4 className="text-lg font-bold text-slate-800">{t('contact.hoursTitle')}</h4>
+                    <p className="text-slate-700">{t('contact.hours1')}</p>
+                    <p className="text-slate-700">{t('contact.hours2')}</p>
                   </div>
                 </div>
               </div>
 
               <a href="https://maps.google.com/?q=برج+الشاشة+جدة" target="_blank" rel="noopener noreferrer" className="inline-block bg-brand-600 hover:bg-brand-700 text-white px-8 py-3 rounded-lg font-bold transition">
-                📍 اعرض الموقع على الخريطة
+                {t('contact.mapBtn')}
               </a>
             </div>
 
             <form onSubmit={handleContactSubmit} className="bg-white rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl font-bold text-slate-800 mb-6">أرسل لنا رسالة</h3>
-              
+              <h3 className="text-2xl font-bold text-slate-800 mb-6">{t('contact.formTitle')}</h3>
+
               <div className="mb-4">
-                <label className="block text-slate-700 font-semibold mb-2">اسمك</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('contact.name')}</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
-                  placeholder="محمد علي"
+                  placeholder={t('contact.namePh')}
                   required
                 />
               </div>
 
               <div className="mb-4">
-                <label className="block text-slate-700 font-semibold mb-2">بريدك الإلكتروني</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('contact.email')}</label>
                 <input
                   type="email"
                   value={formData.email}
@@ -515,7 +519,7 @@ export default function AlFarsiLawOffice() {
               </div>
 
               <div className="mb-4">
-                <label className="block text-slate-700 font-semibold mb-2">رقم الهاتف</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('contact.phone')}</label>
                 <input
                   type="tel"
                   value={formData.phone}
@@ -527,12 +531,12 @@ export default function AlFarsiLawOffice() {
               </div>
 
               <div className="mb-6">
-                <label className="block text-slate-700 font-semibold mb-2">رسالتك</label>
+                <label className="block text-slate-700 font-semibold mb-2">{t('contact.message')}</label>
                 <textarea
                   value={formData.message}
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-lg focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 h-32 resize-none"
-                  placeholder="اكتب رسالتك هنا..."
+                  placeholder={t('contact.messagePh')}
                   required
                 />
               </div>
@@ -541,7 +545,7 @@ export default function AlFarsiLawOffice() {
                 type="submit"
                 className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-lg transition"
               >
-                إرسال الرسالة
+                {t('contact.send')}
               </button>
             </form>
           </div>
@@ -551,15 +555,15 @@ export default function AlFarsiLawOffice() {
       {/* App CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-brand-600 to-brand-700 text-white">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">احجز استشارتك الآن</h2>
+          <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">{t('cta.title')}</h2>
           <p className="text-xl text-brand-100 mb-8 max-w-2xl mx-auto">
-            استخدم نموذج الحجز البسيط والسريع. اختر الخدمة التي تحتاجها والوقت المناسب لك.
+            {t('cta.body')}
           </p>
           <button onClick={() => openBookingForm('احوال شخصية')} className="bg-white text-brand-600 hover:bg-brand-50 px-12 py-4 rounded-lg font-bold text-lg transition shadow-lg">
-            🚀 احجز الآن
+            {t('cta.btn')}
           </button>
           <p className="text-brand-100 mt-6 text-sm">
-            تنبيهات قبل الموعد بيوم مباشرة على بريدك الإلكتروني.
+            {t('cta.note')}
           </p>
         </div>
       </section>
@@ -571,13 +575,13 @@ export default function AlFarsiLawOffice() {
             <div>
               <div className="mb-4">
                 <div className="bg-white rounded-xl p-3 inline-block">
-                  <img src="/logo.jpeg" alt="مكتب ساير بن فارس المطيري" className="h-14 w-auto" />
+                  <img src="/logo.jpeg" alt={t('hero.logoAlt')} className="h-14 w-auto" />
                 </div>
               </div>
-              <p className="text-sm mb-3">نقدم خدمات قانونية احترافية وموثوقة منذ سنوات.</p>
+              <p className="text-sm mb-3">{t('footer.tagline')}</p>
               <div className="border-t border-brand-700 pt-3 space-y-1">
-                <p className="text-xs text-brand-200">المدير العام</p>
-                <p className="text-white font-bold">محمد بن أمين الوزان</p>
+                <p className="text-xs text-brand-200">{t('footer.gmLabel')}</p>
+                <p className="text-white font-bold">{t('footer.gmName')}</p>
                 <p className="text-sm">📞 <a href="tel:0551055959" className="hover:text-white transition"><span dir="ltr">0551055959</span></a></p>
                 <p className="text-sm">📧 <a href="mailto:mr.alwzzan@gmail.com" className="hover:text-white transition">mr.alwzzan@gmail.com</a></p>
                 <a href="https://x.com/lawyeralwazzan" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm hover:text-white transition pt-1">
@@ -590,30 +594,30 @@ export default function AlFarsiLawOffice() {
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-4">روابط سريعة</h4>
+              <h4 className="text-white font-bold mb-4">{t('footer.quickLinks')}</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#services" className="hover:text-white transition">الخدمات</a></li>
-                <li><a href="#prices" className="hover:text-white transition">الأسعار</a></li>
-                <li><a href="#about" className="hover:text-white transition">معلومات</a></li>
-                <li><a href="#contact" className="hover:text-white transition">تواصل</a></li>
+                <li><a href="#services" className="hover:text-white transition">{t('nav.services')}</a></li>
+                <li><a href="#prices" className="hover:text-white transition">{t('nav.prices')}</a></li>
+                <li><a href="#about" className="hover:text-white transition">{t('nav.about')}</a></li>
+                <li><a href="#contact" className="hover:text-white transition">{t('nav.contact')}</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-4">تواصل سريع</h4>
+              <h4 className="text-white font-bold mb-4">{t('footer.quickContact')}</h4>
               <ul className="space-y-2 text-sm">
-                <li>📞 <span dir="ltr">0590164400</span> (المكتب)</li>
-                <li>💬 <a href="https://wa.me/966551055959" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><span dir="ltr">0551055959</span> (واتساب)</a></li>
+                <li>📞 <span dir="ltr">0590164400</span> {t('footer.office')}</li>
+                <li>💬 <a href="https://wa.me/966551055959" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><span dir="ltr">0551055959</span> {t('footer.whatsapp')}</a></li>
                 <li>📧 <a href="mailto:mr.alwzzan@gmail.com" className="hover:text-white transition">mr.alwzzan@gmail.com</a></li>
-                <li>📍 جدة - برج الشاشة</li>
-                <li>🕐 الأحد - الخميس: 9 ص - 6 م</li>
+                <li>{t('footer.addr')}</li>
+                <li>{t('footer.hours')}</li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-slate-700 pt-8 text-center text-sm">
-            <p>&copy; 2026 مكتب ساير بن فارس المطيري للمحاماة والاستشارات الشرعية والقانونية. جميع الحقوق محفوظة.</p>
-            <p className="mt-2">تم بناء الموقع بكل احترافية لتقديم أفضل تجربة</p>
+            <p>{t('footer.copyright')}</p>
+            <p className="mt-2">{t('footer.built')}</p>
           </div>
         </div>
       </footer>
@@ -623,7 +627,7 @@ export default function AlFarsiLawOffice() {
         href="https://wa.me/966551055959"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="تواصل عبر واتساب"
+        aria-label={t('whatsappAria')}
         className="fixed bottom-6 left-6 z-50 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl transition hover:scale-110 flex items-center justify-center"
       >
         <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true">
