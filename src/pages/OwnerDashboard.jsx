@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LogOut, Calendar, Clock, Check, X, Plus, Trash2, User, Mail, Phone, CreditCard, MessageCircle, Bell } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
+import { parseReminder } from '../lib/parseReminder';
 
 const STATUS_CLS = {
   pending: 'bg-gold-100 text-gold-700',
@@ -39,16 +40,61 @@ export default function OwnerDashboard() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [toast, setToast] = useState('');
+  const [reminders, setReminders] = useState([]);
+  const [reminderText, setReminderText] = useState('');
+  const [remindMsg, setRemindMsg] = useState('');
+  const remindNotifiedRef = useRef(false);
+
+  const byDate = (a, b) => (a.greg_date || '9999').localeCompare(b.greg_date || '9999');
 
   const load = async () => {
     setLoading(true);
-    const [{ data: appts }, { data: avail }] = await Promise.all([
+    const [{ data: appts }, { data: avail }, { data: rem }] = await Promise.all([
       supabase.from('appointments').select('*').order('created_at', { ascending: false }),
       supabase.from('available_slots').select('*').order('date', { ascending: true }),
+      supabase.from('reminders').select('*').order('greg_date', { ascending: true }),
     ]);
     setAppointments(appts || []);
     setSlots(avail || []);
+    setReminders((rem || []).sort(byDate));
     setLoading(false);
+  };
+
+  // إضافة تذكير من رسالة ملصوقة (استخراج تلقائي للتاريخ/الوقت/رقم القضية)
+  const addReminder = async (e) => {
+    e.preventDefault();
+    if (!reminderText.trim()) return;
+    const parsed = parseReminder(reminderText);
+    const { data, error } = await supabase.from('reminders').insert(parsed).select();
+    if (error) {
+      setRemindMsg(error.message);
+      return;
+    }
+    setReminders((prev) => [...(data || []), ...prev].sort(byDate));
+    setReminderText('');
+    setRemindMsg(parsed.greg_date ? '' : t('owner.remindParseNote'));
+  };
+
+  const deleteReminder = async (id) => {
+    if (!window.confirm(t('owner.remindDeleteConfirm'))) return;
+    await supabase.from('reminders').delete().eq('id', id);
+    setReminders((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  // كم يوماً متبقياً حتى الموعد (بالتوقيت المحلي)
+  const daysLeft = (g) => {
+    if (!g) return null;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const target = new Date(g + 'T00:00:00');
+    return Math.round((target - today) / 86400000);
+  };
+  const daysLabel = (dl) => {
+    if (dl === null || dl === undefined) return '';
+    if (dl < 0) return t('owner.remindPassed');
+    if (dl === 0) return t('owner.remindToday');
+    if (dl === 1) return t('owner.remindTomorrow');
+    return t('owner.remindInDays').replace('{n}', dl);
   };
 
   useEffect(() => {
@@ -80,6 +126,20 @@ export default function OwnerDashboard() {
     return () => supabase.removeChannel(channel);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // تنبيه المتصفح مرة واحدة بالتذكيرات المستحقّة اليوم/غداً
+  useEffect(() => {
+    if (remindNotifiedRef.current || reminders.length === 0) return;
+    const soon = reminders.filter((r) => { const d = daysLeft(r.greg_date); return d === 0 || d === 1; });
+    if (soon.length === 0) return;
+    remindNotifiedRef.current = true;
+    try {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification(t('owner.remindNotifTitle'), { body: `${t('owner.remindNotifA')}${soon.length}${t('owner.remindNotifB')}` });
+      }
+    } catch (e) { /* تجاهل */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reminders]);
 
   const setStatus = async (id, status) => {
     await supabase.from('appointments').update({ status }).eq('id', id);
@@ -199,6 +259,61 @@ export default function OwnerDashboard() {
             </button>
           </div>
         )}
+
+        {/* تذكيراتي (الجلسات والمواعيد) — استخراج تلقائي من رسالة ملصوقة */}
+        <section className="mb-8 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
+            <Bell size={22} className="text-brand-600" /> {t('owner.remindHeading')}
+          </h2>
+          <p className="text-slate-400 text-sm mb-3">{t('owner.remindHint')}</p>
+          {remindMsg && <div className="bg-gold-50 border border-gold-200 text-brand-800 px-4 py-2.5 rounded-lg mb-3 text-sm">{remindMsg}</div>}
+          <form onSubmit={addReminder} className="mb-5">
+            <textarea
+              value={reminderText}
+              onChange={(e) => setReminderText(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 h-24 resize-none text-sm"
+              placeholder={t('owner.remindPlaceholder')}
+            />
+            <button type="submit" disabled={!reminderText.trim()}
+              className="mt-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold px-5 py-2.5 rounded-xl inline-flex items-center gap-1">
+              <Plus size={18} /> {t('owner.remindAdd')}
+            </button>
+          </form>
+
+          {reminders.length === 0 ? (
+            <p className="text-slate-400 text-center text-sm py-4">{t('owner.remindNone')}</p>
+          ) : (
+            <div className="space-y-2">
+              {reminders.map((r) => {
+                const dl = daysLeft(r.greg_date);
+                const badgeCls = dl === null ? 'bg-slate-100 text-slate-500'
+                  : dl < 0 ? 'bg-slate-100 text-slate-400'
+                  : dl === 0 ? 'bg-red-100 text-red-700'
+                  : dl === 1 ? 'bg-gold-100 text-gold-700'
+                  : 'bg-brand-50 text-brand-700';
+                return (
+                  <div key={r.id} className="border border-slate-200 rounded-xl p-4 flex justify-between items-start gap-3">
+                    <div className="text-sm space-y-1">
+                      <p className="font-bold text-slate-800">{r.title || '—'}</p>
+                      {r.case_number && <p className="text-slate-500">{t('owner.remindCaseNo')}: <span dir="ltr">{r.case_number}</span></p>}
+                      <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600">
+                        {r.greg_date && <span className="flex items-center gap-1"><Calendar size={14} /> <span dir="ltr">{r.greg_date}</span></span>}
+                        {r.hijri_date && <span className="text-slate-400">{t('owner.remindHijri')}: <span dir="ltr">{r.hijri_date}</span></span>}
+                        {r.time && <span className="flex items-center gap-1"><Clock size={14} /> {t('owner.remindAt')} {r.time}</span>}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2 whitespace-nowrap">
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badgeCls}`}>{daysLabel(dl)}</span>
+                      <button onClick={() => deleteReminder(r.id)} className="text-slate-400 hover:text-red-600">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
