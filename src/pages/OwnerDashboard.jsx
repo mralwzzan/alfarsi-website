@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
+import StaffManager from '../components/StaffManager';
 
 const STATUS_CLS = {
   pending: 'bg-gold-100 text-gold-700',
@@ -179,6 +180,9 @@ export default function OwnerDashboard() {
                 </span>
               )}
             </button>
+            <Link to="/reminders" className="flex items-center gap-1.5 text-slate-600 hover:text-brand-600 font-semibold" title="مواعيد الجلسات">
+              <Calendar size={20} /> <span className="hidden sm:inline">مواعيد الجلسات</span>
+            </Link>
             <button onClick={signOut} className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-semibold">
             <LogOut size={20} /> {t('owner.signout')}
           </button>
@@ -375,6 +379,9 @@ export default function OwnerDashboard() {
             </div>
           )}
         </section>
+
+        {/* إدارة الموظفين والاطلاع على مواعيد الجلسات */}
+        <StaffManager />
       </main>
     </div>
   );

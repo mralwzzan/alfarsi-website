@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, resolveRole } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
 
@@ -16,9 +16,12 @@ export default function Login() {
   const [info, setInfo] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const goAfterAuth = (email) => {
-    const owner = email.toLowerCase() === 'mr.alwzzan@gmail.com';
-    navigate(owner ? '/admin' : '/dashboard', { replace: true });
+  // توجيه المستخدم حسب دوره: الإدارة → لوحة الإدارة، الموظف → التذكيرات، العميل → لوحته
+  const goAfterAuth = async () => {
+    const { data } = await supabase.auth.getUser();
+    const role = await resolveRole(data?.user);
+    const dest = role === 'owner' ? '/admin' : role === 'employee' ? '/reminders' : '/dashboard';
+    navigate(dest, { replace: true });
   };
 
   const handleSubmit = async (e) => {
@@ -41,7 +44,7 @@ export default function Login() {
         });
         if (error) throw error;
         if (data.session) {
-          goAfterAuth(form.email);
+          await goAfterAuth();
         } else {
           setInfo(t('login.signupSuccess'));
           setMode('login');
@@ -52,7 +55,7 @@ export default function Login() {
           password: form.password,
         });
         if (error) throw error;
-        goAfterAuth(form.email);
+        await goAfterAuth();
       }
     } catch (err) {
       const msg = err?.message || t('login.genericError');

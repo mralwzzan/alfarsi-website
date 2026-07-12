@@ -2,24 +2,42 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Bell, CalendarClock, Wand2, Trash2, CalendarPlus, ClipboardPaste,
-  IdCard, Hash, FileText, Clock, ArrowRight, CheckCircle2,
+  IdCard, Hash, FileText, Clock, ArrowRight, CheckCircle2, LogOut, LayoutDashboard, User,
 } from 'lucide-react';
 import { parseNotice, buildReminder, buildICS } from '../lib/parseNotice';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 const STORAGE_KEY = 'appointment_reminders';
 
-const load = () => {
+const loadLocal = () => {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   } catch {
     return [];
   }
 };
-const save = (list) => {
+const saveLocal = (list) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
   } catch { /* تجاهل */ }
 };
+
+// تحويل صف قاعدة البيانات إلى شكل التذكير المستخدم في الواجهة
+const fromRow = (row) => ({
+  id: row.id,
+  identity: row.identity || '',
+  caseType: row.case_type || '',
+  caseNumber: row.case_number || '',
+  hijri: row.hijri_date || '',
+  time: row.appt_time || '',
+  period: row.period || 'am',
+  gregorian: row.gregorian_date || '',
+  startISO: row.start_at || '',
+  note: row.note || '',
+  createdBy: row.created_by_name || '',
+  createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+});
 
 const AR_MONTHS = [
   'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
@@ -45,8 +63,7 @@ const daysLeft = (iso) => {
   if (!iso) return null;
   const now = new Date();
   const target = new Date(iso);
-  const diff = Math.ceil((target - now) / 86400000);
-  return diff;
+  return Math.ceil((target - now) / 86400000);
 };
 
 const countdownLabel = (iso) => {
@@ -73,15 +90,42 @@ const SAMPLE = `صاحب الهوية:
 ويمكنكم الاطلاع على كافة التفاصيل عبر ناجز.`;
 
 export default function Reminders() {
+  const { user, isStaff, isOwner, loading: authLoading, signOut } = useAuth();
+  // وضع التخزين: قاعدة البيانات لأعضاء الطاقم، أو محلياً للزوّار
+  const dbMode = isStaff && !!supabase;
+
   const [text, setText] = useState('');
   const [fields, setFields] = useState(emptyFields);
   const [parsed, setParsed] = useState(false);
-  const [reminders, setReminders] = useState(load);
+  const [reminders, setReminders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [flash, setFlash] = useState('');
 
-  useEffect(() => save(reminders), [reminders]);
+  // تحميل التذكيرات بحسب وضع التخزين (بعد استقرار حالة الدخول)
+  useEffect(() => {
+    if (authLoading) return;
+    let cancel = false;
+    (async () => {
+      setLoading(true);
+      if (dbMode) {
+        const { data } = await supabase
+          .from('reminders')
+          .select('*')
+          .order('start_at', { ascending: true });
+        if (!cancel) setReminders((data || []).map(fromRow));
+      } else {
+        if (!cancel) setReminders(loadLocal());
+      }
+      if (!cancel) setLoading(false);
+    })();
+    return () => { cancel = true; };
+  }, [authLoading, dbMode]);
 
-  // ترتيب التذكيرات حسب الأقرب زمنياً
+  // حفظ محلي فقط في الوضع المحلي
+  useEffect(() => {
+    if (!authLoading && !dbMode) saveLocal(reminders);
+  }, [reminders, dbMode, authLoading]);
+
   const sorted = useMemo(
     () =>
       [...reminders].sort((a, b) => {
@@ -93,24 +137,59 @@ export default function Reminders() {
   );
 
   const organize = () => {
-    const f = parseNotice(text);
-    setFields(f);
+    setFields(parseNotice(text));
     setParsed(true);
   };
 
   const preview = useMemo(() => (parsed ? buildReminder(fields) : null), [parsed, fields]);
 
-  const addReminder = () => {
+  const flashMsg = (m) => {
+    setFlash(m);
+    setTimeout(() => setFlash(''), 2800);
+  };
+
+  const addReminder = async () => {
     const r = buildReminder({ ...fields, raw: fields.raw || text });
-    setReminders((prev) => [...prev, r]);
+    if (dbMode) {
+      const { data, error } = await supabase
+        .from('reminders')
+        .insert({
+          user_id: user.id,
+          created_by_email: user.email,
+          created_by_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'موظف',
+          identity: r.identity,
+          case_type: r.caseType,
+          case_number: r.caseNumber,
+          hijri_date: r.hijri,
+          appt_time: r.time,
+          period: r.period,
+          gregorian_date: r.gregorian || null,
+          start_at: r.startISO || null,
+          note: r.note,
+        })
+        .select()
+        .single();
+      if (error) {
+        flashMsg('تعذّر الحفظ: ' + error.message);
+        return;
+      }
+      setReminders((prev) => [...prev, fromRow(data)]);
+    } else {
+      setReminders((prev) => [...prev, r]);
+    }
     setText('');
     setFields(emptyFields);
     setParsed(false);
-    setFlash('تمت إضافة التذكير ✅');
-    setTimeout(() => setFlash(''), 2500);
+    flashMsg('تمت إضافة موعد الجلسة ✅');
   };
 
-  const remove = (id) => setReminders((prev) => prev.filter((r) => r.id !== id));
+  const remove = async (id) => {
+    if (dbMode) {
+      const { error } = await supabase.from('reminders').delete().eq('id', id);
+      if (error) { flashMsg('تعذّر الحذف: ' + error.message); return; }
+    }
+    setReminders((prev) => prev.filter((r) => r.id !== id));
+  };
 
   const downloadICS = (reminder) => {
     const ics = buildICS(reminder);
@@ -134,8 +213,7 @@ export default function Reminders() {
       const t = await navigator.clipboard.readText();
       if (t) setText(t);
     } catch {
-      setFlash('تعذّر الوصول للحافظة — الصق يدوياً.');
-      setTimeout(() => setFlash(''), 2500);
+      flashMsg('تعذّر الوصول للحافظة — الصق يدوياً.');
     }
   };
 
@@ -148,20 +226,44 @@ export default function Reminders() {
           <Link to="/" className="flex items-center">
             <img src="/logo.jpeg" alt="الفارس" className="h-11 w-auto" />
           </Link>
-          <div className="flex items-center gap-2 text-brand-700 font-bold">
-            <Bell size={20} /> تذكير المواعيد
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-brand-700 font-bold">
+              <Bell size={20} /> مواعيد الجلسات
+            </div>
+            {isOwner && (
+              <Link to="/admin" className="flex items-center gap-1.5 text-slate-600 hover:text-brand-600 font-semibold text-sm">
+                <LayoutDashboard size={18} /> لوحة الإدارة
+              </Link>
+            )}
+            {user && (
+              <button onClick={signOut} className="flex items-center gap-1.5 text-slate-600 hover:text-red-600 font-semibold text-sm">
+                <LogOut size={18} /> خروج
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-800 mb-1 flex items-center gap-2">
-            <CalendarClock className="text-brand-600" /> مواعيدي وتذكيراتي
+            <CalendarClock className="text-brand-600" /> مواعيد الجلسات والتذكير بها
           </h1>
           <p className="text-slate-500">
-            الصق رسالة التبليغ في الأسفل واضغط «رتّب الموعد تلقائياً» — سنستخرج التفاصيل وننشئ تذكيراً بعدّاد تنازلي وإمكانية إضافته لتقويم جوالك.
+            الصق رسالة التبليغ في الأسفل واضغط «رتّب الموعد تلقائياً» — نستخرج التفاصيل وننشئ تذكيراً بعدّاد تنازلي وإمكانية إضافته لتقويم الجوال.
           </p>
+          {dbMode ? (
+            <div className="mt-3 inline-flex items-center gap-2 text-sm bg-brand-50 border border-brand-200 text-brand-700 px-3 py-1.5 rounded-lg">
+              <User size={15} />
+              مسجّل الدخول: {user?.user_metadata?.full_name || user?.email}
+              {isOwner ? ' (الإدارة)' : ' (موظف)'} — المواعيد مشتركة ومحفوظة للجميع
+            </div>
+          ) : (
+            <div className="mt-3 inline-flex items-center gap-2 text-sm bg-slate-100 border border-slate-200 text-slate-500 px-3 py-1.5 rounded-lg">
+              وضع شخصي — تُحفظ على هذا الجهاز فقط.{' '}
+              <Link to="/login" className="text-brand-600 font-semibold hover:underline">دخول الموظفين</Link>
+            </div>
+          )}
         </div>
 
         {flash && (
@@ -222,7 +324,7 @@ export default function Reminders() {
               </div>
             ) : (
               <div className="space-y-3">
-                <Field label="موضوع القضية / الموعد" icon={FileText}
+                <Field label="موضوع القضية / الجلسة" icon={FileText}
                   value={fields.caseType} onChange={(v) => setF('caseType', v)} />
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="رقم الهوية" icon={IdCard}
@@ -234,7 +336,7 @@ export default function Reminders() {
                   <Field label="التاريخ الهجري (سنة/شهر/يوم)" icon={CalendarClock}
                     value={fields.hijri} onChange={(v) => setF('hijri', v)} placeholder="1448/02/09" />
                   <div>
-                    <label className="block text-slate-600 text-sm font-semibold mb-1 flex items-center gap-1">
+                    <label className="text-slate-600 text-sm font-semibold mb-1 flex items-center gap-1">
                       <Clock size={14} /> الوقت
                     </label>
                     <div className="flex gap-2">
@@ -269,25 +371,30 @@ export default function Reminders() {
                   onClick={addReminder}
                   className="w-full bg-slate-900 hover:bg-black text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 mt-2"
                 >
-                  <Bell size={18} /> احفظ التذكير
+                  <Bell size={18} /> احفظ الموعد
                 </button>
               </div>
             )}
           </section>
         </div>
 
-        {/* قائمة التذكيرات */}
+        {/* قائمة المواعيد */}
         <section className="mt-10">
           <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <CalendarClock size={22} className="text-brand-600" /> تذكيراتي القادمة
+            <CalendarClock size={22} className="text-brand-600" />
+            {dbMode ? 'مواعيد الجلسات القادمة' : 'تذكيراتي القادمة'}
             {reminders.length > 0 && (
               <span className="text-sm font-normal text-slate-400">({reminders.length})</span>
             )}
           </h2>
 
-          {reminders.length === 0 ? (
+          {loading ? (
+            <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-400">
+              جارٍ التحميل...
+            </div>
+          ) : reminders.length === 0 ? (
             <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-400">
-              لا توجد تذكيرات بعد — أضف موعدك الأول من الأعلى.
+              لا توجد مواعيد بعد — أضف الموعد الأول من الأعلى.
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
@@ -296,7 +403,7 @@ export default function Reminders() {
                 return (
                   <div key={r.id} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="font-bold text-slate-800 leading-6">{r.caseType || 'موعد'}</h3>
+                      <h3 className="font-bold text-slate-800 leading-6">{r.caseType || 'موعد جلسة'}</h3>
                       <span className={`text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${cd.cls}`}>
                         {cd.text}
                       </span>
@@ -325,6 +432,12 @@ export default function Reminders() {
                           <IdCard size={15} className="text-brand-500" /> الهوية: {r.identity}
                         </div>
                       )}
+                      {dbMode && r.createdBy && (
+                        <div className="flex items-center gap-2 text-slate-500 pt-1">
+                          <User size={15} className="text-gold-600" />
+                          <span>أضافه: <span className="font-semibold text-slate-700">{r.createdBy}</span></span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
@@ -350,7 +463,9 @@ export default function Reminders() {
         </section>
 
         <p className="text-center text-slate-400 text-xs mt-10">
-          تُحفظ تذكيراتك محلياً على جهازك فقط. لتصلك تنبيهات في الموعد أضِف الموعد إلى تقويم جوالك عبر زر «أضف للتقويم».
+          {dbMode
+            ? 'المواعيد محفوظة في نظام المكتب ويطّلع عليها جميع الموظفين والإدارة. لتصلك تنبيهات في الموعد أضِفه لتقويم جوالك.'
+            : 'تُحفظ تذكيراتك محلياً على جهازك فقط. لتصلك تنبيهات في الموعد أضِف الموعد إلى تقويم جوالك عبر زر «أضف للتقويم».'}
         </p>
       </main>
     </div>
@@ -361,7 +476,7 @@ export default function Reminders() {
 function Field({ label, icon: Icon, value, onChange, placeholder }) {
   return (
     <div>
-      <label className="block text-slate-600 text-sm font-semibold mb-1 flex items-center gap-1">
+      <label className="text-slate-600 text-sm font-semibold mb-1 flex items-center gap-1">
         {Icon && <Icon size={14} />} {label}
       </label>
       <input
