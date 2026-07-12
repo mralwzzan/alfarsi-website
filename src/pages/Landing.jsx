@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, Phone, Mail, MapPin, Clock, ArrowRight, Check, LogIn, LayoutDashboard, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
@@ -59,6 +59,7 @@ export default function AlFarsiLawOffice() {
             <a href="#prices" className="text-slate-700 hover:text-brand-600 font-semibold transition">{t('nav.prices')}</a>
             <a href="#about" className="text-slate-700 hover:text-brand-600 font-semibold transition">{t('nav.about')}</a>
             <a href="#contact" className="text-slate-700 hover:text-brand-600 font-semibold transition">{t('nav.contact')}</a>
+            <Link to="/reminders" className="text-slate-700 hover:text-brand-600 font-semibold transition">تذكير المواعيد</Link>
           </div>
 
           <div className="hidden md:flex gap-3 items-center">
@@ -88,6 +89,7 @@ export default function AlFarsiLawOffice() {
             <a href="#prices" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">{t('nav.prices')}</a>
             <a href="#about" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">{t('nav.about')}</a>
             <a href="#contact" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">{t('nav.contact')}</a>
+            <Link to="/reminders" onClick={() => setIsMenuOpen(false)} className="block text-slate-700 hover:text-brand-600 font-semibold py-2">تذكير المواعيد</Link>
             <button onClick={() => {setIsMenuOpen(false); navigate(accountPath);}} className="w-full border border-brand-600 text-brand-600 px-4 py-3 rounded-lg font-semibold text-center transition">
               {accountLabel}
             </button>

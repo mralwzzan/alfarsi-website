@@ -3,6 +3,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ClientDashboard from './pages/ClientDashboard';
 import OwnerDashboard from './pages/OwnerDashboard';
+import Reminders from './pages/Reminders';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -10,6 +11,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/reminders" element={<Reminders />} />
       <Route
         path="/dashboard"
         element={
