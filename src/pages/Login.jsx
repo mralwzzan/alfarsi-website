@@ -33,6 +33,14 @@ export default function Login() {
 
     setBusy(true);
     try {
+      if (mode === 'forgot') {
+        const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        setInfo(t('login.resetSent'));
+        return;
+      }
       if (mode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
@@ -76,20 +84,27 @@ export default function Login() {
         </Link>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
-          <div className="flex bg-slate-100 rounded-xl p-1 mb-6">
-            <button
-              onClick={() => { setMode('login'); setError(''); setInfo(''); }}
-              className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'login' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
-            >
-              {t('login.loginTab')}
-            </button>
-            <button
-              onClick={() => { setMode('signup'); setError(''); setInfo(''); }}
-              className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'signup' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
-            >
-              {t('login.signupTab')}
-            </button>
-          </div>
+          {mode !== 'forgot' ? (
+            <div className="flex bg-slate-100 rounded-xl p-1 mb-6">
+              <button
+                onClick={() => { setMode('login'); setError(''); setInfo(''); }}
+                className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'login' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
+              >
+                {t('login.loginTab')}
+              </button>
+              <button
+                onClick={() => { setMode('signup'); setError(''); setInfo(''); }}
+                className={`flex-1 py-2.5 rounded-lg font-bold transition ${mode === 'signup' ? 'bg-white shadow text-brand-600' : 'text-slate-500'}`}
+              >
+                {t('login.signupTab')}
+              </button>
+            </div>
+          ) : (
+            <div className="mb-6 text-center">
+              <h2 className="text-xl font-bold text-brand-700 mb-1">{t('login.forgotTitle')}</h2>
+              <p className="text-slate-500 text-sm">{t('login.forgotDesc')}</p>
+            </div>
+          )}
 
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>}
           {info && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">{info}</div>}
@@ -132,27 +147,54 @@ export default function Login() {
                 required
               />
             </div>
-            <div>
-              <label className="block text-slate-700 font-semibold mb-2">{t('login.password')}</label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+            {mode !== 'forgot' && (
+              <div>
+                <label className="block text-slate-700 font-semibold mb-2">{t('login.password')}</label>
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
+                  placeholder="••••••••"
+                  required
+                />
+                {mode === 'login' && (
+                  <button
+                    type="button"
+                    onClick={() => { setMode('forgot'); setError(''); setInfo(''); }}
+                    className="text-brand-600 hover:underline text-sm font-semibold mt-2"
+                  >
+                    {t('login.forgotLink')}
+                  </button>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={busy}
               className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2"
             >
-              {busy ? t('login.processing') : mode === 'login' ? t('login.loginBtn') : t('login.signupBtn')}
+              {busy
+                ? t('login.processing')
+                : mode === 'login'
+                ? t('login.loginBtn')
+                : mode === 'signup'
+                ? t('login.signupBtn')
+                : t('login.sendReset')}
               {!busy && <ArrowRight size={20} />}
             </button>
           </form>
+
+          {mode === 'forgot' && (
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(''); setInfo(''); }}
+              className="block w-full text-center text-slate-500 hover:text-brand-600 mt-4 font-semibold text-sm"
+            >
+              {t('login.backToLogin')}
+            </button>
+          )}
         </div>
 
         <Link to="/" className="block text-center text-slate-500 hover:text-brand-600 mt-6 font-semibold">
