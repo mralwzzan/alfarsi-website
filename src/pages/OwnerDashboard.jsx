@@ -13,6 +13,9 @@ const STATUS_CLS = {
   rejected: 'bg-red-100 text-red-700',
 };
 
+// محامو المكتب
+const LAWYERS = ['رهف الغامدي', 'محمد الوزان', 'أسامة الوزان'];
+
 // تنبيه صوتي قصير عند وصول طلب جديد
 const playBeep = () => {
   try {
@@ -48,6 +51,8 @@ export default function OwnerDashboard() {
   const [toast, setToast] = useState('');
   const [reminders, setReminders] = useState([]);
   const [reminderText, setReminderText] = useState('');
+  const [reminderLawyer, setReminderLawyer] = useState(LAWYERS[0]);
+  const [reminderFilter, setReminderFilter] = useState('all');
   const [remindMsg, setRemindMsg] = useState('');
   const remindNotifiedRef = useRef(false);
   const [staffList, setStaffList] = useState([]);
@@ -73,7 +78,7 @@ export default function OwnerDashboard() {
   const addReminder = async (e) => {
     e.preventDefault();
     if (!reminderText.trim()) return;
-    const parsed = parseReminder(reminderText);
+    const parsed = { ...parseReminder(reminderText), lawyer: reminderLawyer };
     const { data, error } = await supabase.from('reminders').insert(parsed).select();
     if (error) {
       setRemindMsg(error.message);
@@ -240,6 +245,7 @@ export default function OwnerDashboard() {
   };
 
   const shown = filter === 'all' ? appointments : appointments.filter((a) => a.status === filter);
+  const shownReminders = reminderFilter === 'all' ? reminders : reminders.filter((r) => r.lawyer === reminderFilter);
 
   // قائمة العملاء (فريدة) مستخرجة من الحجوزات مع أرقام جوالهم
   const clients = Object.values(
@@ -317,17 +323,34 @@ export default function OwnerDashboard() {
               className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 h-24 resize-none text-sm"
               placeholder={t('owner.remindPlaceholder')}
             />
-            <button type="submit" disabled={!reminderText.trim()}
-              className="mt-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold px-5 py-2.5 rounded-xl inline-flex items-center gap-1">
-              <Plus size={18} /> {t('owner.remindAdd')}
-            </button>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <label className="text-sm font-semibold text-slate-600">{t('owner.remindLawyer')}:</label>
+              <select value={reminderLawyer} onChange={(e) => setReminderLawyer(e.target.value)}
+                className="bg-slate-50 border border-slate-300 px-3 py-2.5 rounded-xl focus:outline-none focus:border-brand-500 text-sm">
+                {LAWYERS.map((l) => <option key={l} value={l}>{l}</option>)}
+              </select>
+              <button type="submit" disabled={!reminderText.trim()}
+                className="bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold px-5 py-2.5 rounded-xl inline-flex items-center gap-1">
+                <Plus size={18} /> {t('owner.remindAdd')}
+              </button>
+            </div>
           </form>
 
-          {reminders.length === 0 ? (
+          {/* فلترة حسب المحامي */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {['all', ...LAWYERS].map((l) => (
+              <button key={l} onClick={() => setReminderFilter(l)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition ${reminderFilter === l ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-300 hover:border-brand-400'}`}>
+                {l === 'all' ? t('owner.remindAllLawyers') : l}
+              </button>
+            ))}
+          </div>
+
+          {shownReminders.length === 0 ? (
             <p className="text-slate-400 text-center text-sm py-4">{t('owner.remindNone')}</p>
           ) : (
             <div className="space-y-2">
-              {reminders.map((r) => {
+              {shownReminders.map((r) => {
                 const dl = daysLeft(r.greg_date);
                 const badgeCls = dl === null ? 'bg-slate-100 text-slate-500'
                   : dl < 0 ? 'bg-slate-100 text-slate-400'
@@ -337,6 +360,11 @@ export default function OwnerDashboard() {
                 return (
                   <div key={r.id} className="border border-slate-200 rounded-xl p-4 flex justify-between items-start gap-3">
                     <div className="text-sm space-y-1">
+                      {r.lawyer && (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-brand-100 text-brand-700 mb-1">
+                          <User size={12} /> {r.lawyer}
+                        </span>
+                      )}
                       {(r.plaintiff || r.defendant) ? (
                         <>
                           {r.plaintiff && <p className="font-bold text-slate-800"><span className="text-slate-400 font-normal">{t('owner.remindPlaintiff')}:</span> {r.plaintiff}</p>}
