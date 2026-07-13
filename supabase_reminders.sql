@@ -6,12 +6,18 @@ create table if not exists public.reminders (
   id uuid primary key default gen_random_uuid(),
   title text,
   case_number text,
+  plaintiff text,
+  defendant text,
   hijri_date text,
   greg_date date,
   "time" text,
   raw_text text,
   created_at timestamptz default now()
 );
+
+-- إن كان الجدول موجوداً مسبقاً، أضف العمودين الجديدين:
+alter table public.reminders add column if not exists plaintiff text;
+alter table public.reminders add column if not exists defendant text;
 
 alter table public.reminders enable row level security;
 

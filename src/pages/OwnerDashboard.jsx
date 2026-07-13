@@ -32,8 +32,14 @@ const playBeep = () => {
 
 export default function OwnerDashboard() {
   const { signOut, isOwner, isEmployee } = useAuth();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const typeLabel = (ar) => t('types')[ar] || ar;
+  // اسم اليوم (السبت/الأحد...) من التاريخ الميلادي
+  const weekdayName = (g) => {
+    if (!g) return '';
+    try { return new Date(g + 'T00:00:00').toLocaleDateString(lang === 'ar' ? 'ar' : 'en-US', { weekday: 'long' }); }
+    catch (e) { return ''; }
+  };
   const [appointments, setAppointments] = useState([]);
   const [slots, setSlots] = useState([]);
   const [newSlot, setNewSlot] = useState({ date: '', time: '' });
@@ -331,10 +337,17 @@ export default function OwnerDashboard() {
                 return (
                   <div key={r.id} className="border border-slate-200 rounded-xl p-4 flex justify-between items-start gap-3">
                     <div className="text-sm space-y-1">
-                      <p className="font-bold text-slate-800">{r.title || '—'}</p>
+                      {(r.plaintiff || r.defendant) ? (
+                        <>
+                          {r.plaintiff && <p className="font-bold text-slate-800"><span className="text-slate-400 font-normal">{t('owner.remindPlaintiff')}:</span> {r.plaintiff}</p>}
+                          {r.defendant && <p className="text-slate-700"><span className="text-slate-400">{t('owner.remindDefendant')}:</span> {r.defendant}</p>}
+                        </>
+                      ) : (
+                        <p className="font-bold text-slate-800">{r.title || '—'}</p>
+                      )}
                       {r.case_number && <p className="text-slate-500">{t('owner.remindCaseNo')}: <span dir="ltr">{r.case_number}</span></p>}
                       <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600">
-                        {r.greg_date && <span className="flex items-center gap-1"><Calendar size={14} /> <span dir="ltr">{r.greg_date}</span></span>}
+                        {r.greg_date && <span className="flex items-center gap-1"><Calendar size={14} /> {weekdayName(r.greg_date)} <span dir="ltr">{r.greg_date}</span></span>}
                         {r.hijri_date && <span className="text-slate-400">{t('owner.remindHijri')}: <span dir="ltr">{r.hijri_date}</span></span>}
                         {r.time && <span className="flex items-center gap-1"><Clock size={14} /> {t('owner.remindAt')} {r.time}</span>}
                       </p>
