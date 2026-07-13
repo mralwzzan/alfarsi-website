@@ -31,7 +31,7 @@ const playBeep = () => {
 };
 
 export default function OwnerDashboard() {
-  const { signOut } = useAuth();
+  const { signOut, isOwner, isEmployee } = useAuth();
   const { t } = useLang();
   const typeLabel = (ar) => t('types')[ar] || ar;
   const [appointments, setAppointments] = useState([]);
@@ -44,6 +44,9 @@ export default function OwnerDashboard() {
   const [reminderText, setReminderText] = useState('');
   const [remindMsg, setRemindMsg] = useState('');
   const remindNotifiedRef = useRef(false);
+  const [staffList, setStaffList] = useState([]);
+  const [staffEmail, setStaffEmail] = useState('');
+  const [staffMsg, setStaffMsg] = useState('');
 
   const byDate = (a, b) => (a.greg_date || '9999').localeCompare(b.greg_date || '9999');
 
@@ -79,6 +82,32 @@ export default function OwnerDashboard() {
     if (!window.confirm(t('owner.remindDeleteConfirm'))) return;
     await supabase.from('reminders').delete().eq('id', id);
     setReminders((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  // إدارة الموظفين (المالك فقط)
+  const loadStaff = async () => {
+    const { data } = await supabase.from('staff').select('*').order('created_at', { ascending: true });
+    setStaffList(data || []);
+  };
+
+  const addStaff = async (e) => {
+    e.preventDefault();
+    const email = staffEmail.trim().toLowerCase();
+    if (!email) return;
+    const { error } = await supabase.from('staff').insert({ email, role: 'employee' });
+    if (error) {
+      setStaffMsg(error.message);
+      return;
+    }
+    setStaffEmail('');
+    setStaffMsg(t('owner.staffAddedNote'));
+    loadStaff();
+  };
+
+  const deleteStaff = async (email) => {
+    if (!window.confirm(t('owner.staffDeleteConfirm'))) return;
+    await supabase.from('staff').delete().eq('email', email);
+    setStaffList((prev) => prev.filter((s) => s.email !== email));
   };
 
   // كم يوماً متبقياً حتى الموعد (بالتوقيت المحلي)
@@ -126,6 +155,12 @@ export default function OwnerDashboard() {
     return () => supabase.removeChannel(channel);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // تحميل قائمة الموظفين (المالك فقط)
+  useEffect(() => {
+    if (isOwner) loadStaff();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwner]);
 
   // تنبيه المتصفح مرة واحدة بالتذكيرات المستحقّة اليوم/غداً
   useEffect(() => {
@@ -227,18 +262,20 @@ export default function OwnerDashboard() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <img src="/logo.jpeg" alt={t('hero.logoAlt')} className="h-11 w-auto" />
-            <span className="font-bold text-slate-800 hidden sm:inline">{t('owner.panelTitle')}</span>
+            <span className="font-bold text-slate-800 hidden sm:inline">{isEmployee ? t('owner.employeePanelTitle') : t('owner.panelTitle')}</span>
           </Link>
           <div className="flex items-center gap-4">
             <LanguageToggle className="border-slate-300 text-slate-600 hover:border-brand-400 hover:text-brand-600" />
-            <button onClick={() => setFilter('pending')} className="relative" title={t('owner.pendingAttr')}>
-              <Bell size={24} className="text-slate-600" />
-              {counts.pending > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {counts.pending}
-                </span>
-              )}
-            </button>
+            {isOwner && (
+              <button onClick={() => setFilter('pending')} className="relative" title={t('owner.pendingAttr')}>
+                <Bell size={24} className="text-slate-600" />
+                {counts.pending > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {counts.pending}
+                  </span>
+                )}
+              </button>
+            )}
             <button onClick={signOut} className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-semibold">
             <LogOut size={20} /> {t('owner.signout')}
           </button>
@@ -248,7 +285,7 @@ export default function OwnerDashboard() {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* تنبيه الطلبات المعلّقة */}
-        {counts.pending > 0 && (
+        {isOwner && counts.pending > 0 && (
           <div className="mb-6 bg-gold-50 border-2 border-gold-300 rounded-2xl px-5 py-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Bell className="text-gold-600" size={24} />
@@ -315,6 +352,8 @@ export default function OwnerDashboard() {
           )}
         </section>
 
+        {isOwner && (
+        <>
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl border border-slate-200 p-5 text-center shadow-sm">
@@ -490,6 +529,39 @@ export default function OwnerDashboard() {
             </div>
           )}
         </section>
+
+        {/* الموظفون (صلاحية التذكيرات فقط) */}
+        <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mt-8">
+          <h2 className="text-xl font-bold text-slate-800 mb-1 flex items-center gap-2">
+            <User size={22} className="text-brand-600" /> {t('owner.staffHeading')}
+          </h2>
+          <p className="text-slate-400 text-sm mb-3">{t('owner.staffHint')}</p>
+          {staffMsg && <div className="bg-gold-50 border border-gold-200 text-brand-800 px-4 py-2.5 rounded-lg mb-3 text-sm">{staffMsg}</div>}
+          <form onSubmit={addStaff} className="flex flex-wrap gap-2 mb-4">
+            <input type="email" value={staffEmail} onChange={(e) => setStaffEmail(e.target.value)}
+              dir="ltr" placeholder={t('owner.staffEmailPh')}
+              className="flex-1 min-w-[220px] bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl focus:outline-none focus:border-brand-500" required />
+            <button type="submit" className="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl inline-flex items-center gap-1">
+              <Plus size={18} /> {t('owner.staffAdd')}
+            </button>
+          </form>
+          {staffList.length === 0 ? (
+            <p className="text-slate-400 text-center text-sm py-4">{t('owner.staffNone')}</p>
+          ) : (
+            <div className="space-y-2">
+              {staffList.map((s) => (
+                <div key={s.email} className="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-2.5 text-sm">
+                  <span className="text-slate-700" dir="ltr">{s.email}</span>
+                  <button onClick={() => deleteStaff(s.email)} className="text-slate-400 hover:text-red-600">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+        </>
+        )}
       </main>
     </div>
   );

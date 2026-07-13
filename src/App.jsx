@@ -23,7 +23,7 @@ export default function App() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute ownerOnly>
+          <ProtectedRoute staffOnly>
             <OwnerDashboard />
           </ProtectedRoute>
         }

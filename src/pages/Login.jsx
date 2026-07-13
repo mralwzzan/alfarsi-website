@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isSupabaseConfigured, OWNER_EMAIL } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import LanguageToggle from '../components/LanguageToggle';
@@ -16,9 +16,15 @@ export default function Login() {
   const [info, setInfo] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const goAfterAuth = (email) => {
-    const owner = email.toLowerCase() === 'mr.alwzzan@gmail.com';
-    navigate(owner ? '/admin' : '/dashboard', { replace: true });
+  const goAfterAuth = async (email) => {
+    const em = email.toLowerCase();
+    if (em === OWNER_EMAIL.toLowerCase()) {
+      navigate('/admin', { replace: true });
+      return;
+    }
+    // الموظفون المصرّح لهم يذهبون للوحة (بصلاحية محدودة)، والعملاء للوحة العميل
+    const { data } = await supabase.from('staff').select('email').eq('email', em).maybeSingle();
+    navigate(data ? '/admin' : '/dashboard', { replace: true });
   };
 
   const handleSubmit = async (e) => {
