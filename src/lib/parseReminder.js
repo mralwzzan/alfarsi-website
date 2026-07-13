@@ -44,6 +44,14 @@ const afterLabel = (raw, label) => {
 export function parseReminder(text) {
   const raw = (text || '').trim();
 
+  // رقم الهوية (آخر 4 أرقام) — يُستخدم للربط التلقائي بالمحامي
+  let id_suffix = null;
+  const idM = raw.match(/الهوية\s*:?\s*([*•\d]{3,})/);
+  if (idM) {
+    const digits = idM[1].replace(/\D/g, '');
+    if (digits.length >= 3) id_suffix = digits.slice(-4);
+  }
+
   // التاريخ: نفضّل "إلى تاريخ" (الموعد الجديد) ثم "بتاريخ/المحددة بتاريخ" ثم أي تاريخ
   const seg = afterLabel(raw, 'إلى\\s*تاريخ') || afterLabel(raw, 'بتاريخ');
   const info = extractDate(seg) || extractDate(raw);
@@ -105,5 +113,5 @@ export function parseReminder(text) {
   }
   title = title.slice(0, 140);
 
-  return { title, case_number, plaintiff, defendant, hijri_date, greg_date, time, raw_text: raw };
+  return { title, case_number, plaintiff, defendant, hijri_date, greg_date, time, id_suffix, raw_text: raw };
 }

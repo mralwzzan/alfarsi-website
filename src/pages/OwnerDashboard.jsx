@@ -16,6 +16,13 @@ const STATUS_CLS = {
 // محامو المكتب
 const LAWYERS = ['رهف الغامدي', 'محمد الوزان', 'أسامة الوزان'];
 
+// الربط التلقائي: آخر 4 أرقام من رقم الهوية ← المحامي المسؤول
+// (أضف هوية أسامة لاحقاً هنا، مثال: '1234': 'أسامة الوزان')
+const LAWYER_ID_MAP = {
+  '8189': 'رهف الغامدي',
+  '1838': 'محمد الوزان',
+};
+
 // تنبيه صوتي قصير عند وصول طلب جديد
 const playBeep = () => {
   try {
@@ -74,11 +81,19 @@ export default function OwnerDashboard() {
     setLoading(false);
   };
 
+  // عند لصق/كتابة الرسالة: ربط المحامي تلقائياً حسب رقم الهوية
+  const onReminderTextChange = (val) => {
+    setReminderText(val);
+    const { id_suffix } = parseReminder(val);
+    if (id_suffix && LAWYER_ID_MAP[id_suffix]) setReminderLawyer(LAWYER_ID_MAP[id_suffix]);
+  };
+
   // إضافة تذكير من رسالة ملصوقة (استخراج تلقائي للتاريخ/الوقت/رقم القضية)
   const addReminder = async (e) => {
     e.preventDefault();
     if (!reminderText.trim()) return;
-    const parsed = { ...parseReminder(reminderText), lawyer: reminderLawyer };
+    const { id_suffix, ...fields } = parseReminder(reminderText);
+    const parsed = { ...fields, lawyer: reminderLawyer };
     const { data, error } = await supabase.from('reminders').insert(parsed).select();
     if (error) {
       setRemindMsg(error.message);
@@ -319,7 +334,7 @@ export default function OwnerDashboard() {
           <form onSubmit={addReminder} className="mb-5">
             <textarea
               value={reminderText}
-              onChange={(e) => setReminderText(e.target.value)}
+              onChange={(e) => onReminderTextChange(e.target.value)}
               className="w-full bg-slate-50 border border-slate-300 px-4 py-3 rounded-xl focus:outline-none focus:border-brand-500 h-24 resize-none text-sm"
               placeholder={t('owner.remindPlaceholder')}
             />
