@@ -13,6 +13,8 @@ create table if not exists public.reminders (
   greg_date date,
   "time" text,
   raw_text text,
+  created_by uuid,
+  created_by_email text,
   created_at timestamptz default now()
 );
 
@@ -20,6 +22,8 @@ create table if not exists public.reminders (
 alter table public.reminders add column if not exists plaintiff text;
 alter table public.reminders add column if not exists defendant text;
 alter table public.reminders add column if not exists lawyer text;
+alter table public.reminders add column if not exists created_by uuid;
+alter table public.reminders add column if not exists created_by_email text;
 
 alter table public.reminders enable row level security;
 

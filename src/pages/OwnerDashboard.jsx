@@ -41,7 +41,7 @@ const playBeep = () => {
 };
 
 export default function OwnerDashboard() {
-  const { signOut, isOwner, isEmployee } = useAuth();
+  const { user, signOut, isOwner, isEmployee } = useAuth();
   const { t, lang } = useLang();
   const typeLabel = (ar) => t('types')[ar] || ar;
   // اسم اليوم (السبت/الأحد...) من التاريخ الميلادي
@@ -93,7 +93,7 @@ export default function OwnerDashboard() {
     e.preventDefault();
     if (!reminderText.trim()) return;
     const { id_suffix, ...fields } = parseReminder(reminderText);
-    const parsed = { ...fields, lawyer: reminderLawyer };
+    const parsed = { ...fields, lawyer: reminderLawyer, created_by: user?.id, created_by_email: user?.email };
     const { data, error } = await supabase.from('reminders').insert(parsed).select();
     if (error) {
       setRemindMsg(error.message);
@@ -394,12 +394,17 @@ export default function OwnerDashboard() {
                         {r.hijri_date && <span className="text-slate-400">{t('owner.remindHijri')}: <span dir="ltr">{r.hijri_date}</span></span>}
                         {r.time && <span className="flex items-center gap-1"><Clock size={14} /> {t('owner.remindAt')} {r.time}</span>}
                       </p>
+                      {isOwner && r.created_by_email && (
+                        <p className="text-xs text-slate-400">{t('owner.remindAddedBy')}: <span dir="ltr">{r.created_by_email}</span></p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-2 whitespace-nowrap">
                       <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badgeCls}`}>{daysLabel(dl)}</span>
-                      <button onClick={() => deleteReminder(r.id)} className="text-slate-400 hover:text-red-600">
-                        <Trash2 size={16} />
-                      </button>
+                      {(isOwner || r.created_by === user?.id) && (
+                        <button onClick={() => deleteReminder(r.id)} className="text-slate-400 hover:text-red-600">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
