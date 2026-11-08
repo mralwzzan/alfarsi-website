@@ -15,14 +15,18 @@ export function AuthProvider({ children }) {
       setLoading(false);
       return;
     }
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    });
+    let settled = false;
+    const finish = () => { if (!settled) { settled = true; setLoading(false); } };
+    supabase.auth.getSession()
+      .then(({ data }) => setUser(data.session?.user ?? null))
+      .catch(() => {})
+      .finally(finish);
+    // أمان: لا تُبقِ شاشة التحميل معلّقة أكثر من 8 ثوانٍ (مثلاً عند بطء القاعدة)
+    const timer = setTimeout(finish, 8000);
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
-    return () => sub.subscription.unsubscribe();
+    return () => { clearTimeout(timer); sub.subscription.unsubscribe(); };
   }, []);
 
   // تحديد دور المستخدم: مالك / موظف / عميل
@@ -32,12 +36,18 @@ export function AuthProvider({ children }) {
       const email = user?.email?.toLowerCase();
       if (!email) { setRole(null); return; }
       if (email === OWNER_EMAIL.toLowerCase()) { setRole('owner'); return; }
-      const { data } = await supabase.from('staff').select('role').eq('email', email).maybeSingle();
-      if (!active) return;
-      setRole(data ? (data.role || 'employee') : 'client');
+      try {
+        const { data } = await supabase.from('staff').select('role').eq('email', email).maybeSingle();
+        if (!active) return;
+        setRole(data ? (data.role || 'employee') : 'client');
+      } catch (e) {
+        if (active) setRole('client');
+      }
     };
     resolve();
-    return () => { active = false; };
+    // أمان: لا تُبقِ تحديد الدور معلّقاً
+    const timer = setTimeout(() => { if (active) setRole((r) => r ?? 'client'); }, 8000);
+    return () => { active = false; clearTimeout(timer); };
   }, [user]);
 
   const isOwner = role === 'owner';
